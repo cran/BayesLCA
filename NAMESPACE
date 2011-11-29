@@ -1,0 +1,2 @@
+import(e1071, MCMCpack)
+exportPattern("^[[:alpha:]]+")
