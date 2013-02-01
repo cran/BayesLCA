@@ -5,12 +5,10 @@
 Bayesian Latent Class Analysis  via a variational Bayes algorithm
 }
 \description{
-Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.vb uses a variational em algorithm to find the distribution which best approximates the parameters' true distribution.
+Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.vb uses a variational EM algorithm to find the distribution which best approximates the parameters' true distribution.
 }
 \usage{
-blca.vb(X, G, alpha = 1, beta = 1, delta = 1, 
-start.vals = c("single", "across"), counts.n = NULL, iter = 500, 
-conv = 1e-06, small = 1e-100)
+blca.vb(X, G, alpha = 1, beta = 1, delta = 1, start.vals = c("single", "across"), counts.n = NULL, iter = 500, restarts = 1, verbose = TRUE, conv = 1e-06, small = 1e-100)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -37,6 +35,12 @@ If data patterns have already been counted, a data matrix consisting of each uni
   \item{iter}{
 The maximum number of iterations that the algorithm runs over.  Will stop earlier if the algorithm converges.
 }
+  \item{restarts}{
+\code{restarts} determines how many times the algorithm is run with different starting values. Parameter estimates from the run which achieved the highest log-posterior are returned. If starting values are supplied, these are used for the first run, after which random starting points are used. Defaults to 1. 
+}
+  \item{verbose}{
+Logical valued. If TRUE, the log-posterior from each run is printed.
+}
   \item{conv}{
 Convergence criteria, i.e., how small should the log-posterior increase become before the algorithm is deemed to have converged?  Set relative to the size of the data matrix.
 }
@@ -45,7 +49,9 @@ To ensure numerical stability a small constant is added to certain parameter est
 }
 }
 \details{
-The variational Bayes method approximates the posterior using as a product of independent distributions. Parameters are then estimated for this approximate distribution using a variational EM algorithm. This method has a tendency to underestimate parameter's variance; as such the standard error and density estimates should be interpreted with caution.
+The variational Bayes method approximates the posterior using as a product of independent distributions. Parameters are then estimated for this approximate distribution using a variational EM algorithm. This method has a tendency to underestimate parameter's variance; as such the standard error and density estimates should be interpreted with caution. 
+
+While it is worth starting the algorithm from multiple starting points, variational algorithms have less of a tendency to cpnverge at saddle point or sub-optimal local maxima.
 }
 \value{
 %%  ~Describe the value returned
@@ -54,6 +60,7 @@ The variational Bayes method approximates the posterior using as a product of in
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
 A list of class "blca.vb" is returned, containing:
+\item{call}{The initial call passed to the function.}
 \item{itemprob}{The item probabilities, conditional on class membership.}
 \item{classprob}{The class probabilities.}
 \item{itemprob.se}{The standard error estimates of the item probabilities.}
@@ -74,13 +81,12 @@ Ormerod J, Wand M (2010). ``Explaining Variational Approximations.'' The America
 Arthur White
 }
 \note{
-%%  ~~further notes~~
+Variational Bayes approximations, are known to often underestimate the standard errors of the parameters under investigation, so caution is advised when checking their values.
 }
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
+\code{\link{blca.em}}, \code{\link{blca.gibbs}}
 }
 \examples{
 type1 <- c(0.8, 0.8, 0.2, 0.2)
@@ -93,6 +99,10 @@ summary(fit)
 par(mfrow=c(3,2))
 plot(fit)
 par(mfrow=c(1,1))
+
+data(Alzheimer)
+sj <- blca.vb(Alzheimer, 10, delta=1/10)
+sj$classprob    ##Empty Groups
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

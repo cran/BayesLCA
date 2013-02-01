@@ -1,5 +1,5 @@
 blca.vb <-
-function(X,G, alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.n=NULL, iter=500, conv=1e-6, small=1e-100)
+function(X,G, alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.n=NULL, iter=500, restarts=1, verbose=TRUE, conv=1e-6, small=1e-100)
 {	
 	if(is.null(counts.n))
 	{
@@ -52,6 +52,18 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts
 
 	counter<-0
 	llstore<-0
+	llcheck<- -Inf
+
+	if(is.numeric(restarts)){
+	  if(length(restarts)>1){
+	    restarts<- restarts[1]
+	    warning("restarts improperly specified - first value will be used, other values will be ignored")
+	    } #else {stop("restarts improperly specified. Must be an integer of length 1.")}
+	} else {stop("restarts improperly specified. Must be an integer of length 1.")}
+
+	multistart.lp.store<- rep(0, restarts)
+
+	for(r in 1:restarts){
 	
 	#Set Parameters
 	if(is.character(start.vals)){
@@ -123,8 +135,34 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts
 	
 		if(counter==iter) {print("Maximum iteration reached."); break}
 
-		}#while eps>conv	
-			
+		}#while eps>conv
+
+		if(ll > llcheck){
+		if(r>1 & verbose==TRUE)  cat("New maximum found... ")
+		  rstore<- list(gamma=gamma, zeta1=zeta1, zeta2=zeta2, Z=Z, l=ll, llstore=llstore, counter=counter, eps=eps)
+		  
+		  llcheck<- ll
+		  }
+		
+		if(verbose==TRUE){ cat(paste("Restart number ", r, ", logpost = ", round(ll, 2), "... \n", sep=""))}
+		multistart.lp.store[r]<- ll
+		
+		eps<-N*M  ## Very important to reset these!!!
+		counter<-0
+		llstore<-0
+		if(r==1 & (is.matrix(start.vals) | is.numeric(start.vals)))  start.vals<- "single"
+		}#r
+	ll<- llcheck
+	o<- order(rstore$gamma, decreasing=TRUE)
+	gamma<- rstore$gamma[o]
+	zeta1<- rstore$zeta1[o,]
+	zeta2<- rstore$zeta2[o,]
+	Z<- rstore$Z[,o]
+	ll<- rstore$l
+	llstore<- rstore$llstore
+	counter<- rstore$counter
+	eps<- rstore$eps
+ 
 	x<-NULL
 	x$call<- match.call()
 	x$itemprob<- (zeta1 - 1)/(zeta1+zeta2 - 2)
@@ -156,10 +194,10 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts
 	x$eps<-eps
 	x$counts<- counts.n
 	x$prior<-NULL
-	x$prior$alpha<- alpha
-	x$prior$beta<- beta
-	x$prior$delta<- delta
-	class(x)<-"blca.vb"
+	x$prior$alpha<- alpha[o,]
+	x$prior$beta<- beta[o, ]
+	x$prior$delta<- delta[o]
+	class(x)<-c("blca.vb", "blca")
 	x
 		
 	}

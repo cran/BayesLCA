@@ -1,10 +1,11 @@
 \name{Zscore}
 \alias{Zscore}
+\alias{Zscore.internal}
 \title{
 Evaluating Class Membership of Binary Data
 }
 \description{
-For a fitted model of class \code{\link{blca.em}}, \code{\link{blca.boot}}, \code{\link{blca.gibbs}} or \code{\link{blca.vb}}, and binary data X, the probability of class membership for each data point is provided.
+For a fitted model of class \code{\link{blca}}, and binary data \code{X}, the probability of class membership for each data point is provided.
 }
 \usage{
 Zscore(X, fit = NULL, itemprob = NULL, classprob = NULL)
@@ -12,10 +13,10 @@ Zscore(X, fit = NULL, itemprob = NULL, classprob = NULL)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{
-A binary data matrix. X must have the same number of columns as the data that fit was applied to.
+A binary data matrix. \code{X} must have the same number of columns as the data that \code{fit} was applied to.
 }
   \item{fit}{
-An object of class \code{\link{blca.em}}, \code{\link{blca.boot}}, \code{\link{blca.gibbs}} or \code{\link{blca.vb}}.
+An object of class \code{\link{blca}}.
 }
   \item{itemprob}{
 A matrix of item probabilities, conditional on class membership.
@@ -25,26 +26,20 @@ A vector denoting class membership probability.
 }
 }
 \details{
-Calculation of the probability of class membership for a data point relies on two parameters, class membership and item probability. These may be supplied directly to Zscore, or alternatively, a blca object containing both parameters can be used instead. 
+Calculation of the probability of class membership for a data point relies on two parameters, class membership and item probability. These may be supplied directly to Zscore, or alternatively, a \code{\link{blca}} object containing both parameters can be used instead. 
 }
 \value{
-A matrix of equal rows to X and with G, the number of classes, columns, where each row is a score denoting the probability of class membership. Each row should therefore sum to 1.
-}
-\references{
-%% ~put references to the literature/web site here ~
+A matrix of equal rows to \code{X} and with G, the number of classes, columns, where each row is a score denoting the probability of class membership. Each row should therefore sum to 1.
 }
 \author{
 Arthur White
 }
 \note{
-%%  ~~further notes~~
+\code{Zscore.internal} has the same functionality as \code{Zscore}, but is only intended for internal use.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 set.seed(1)
 type1 <- c(0.8, 0.8, 0.05, 0.2)

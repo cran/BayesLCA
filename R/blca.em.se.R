@@ -1,79 +1,46 @@
-blca.em.se <-
-function(fit, X, counts.n){
-	
-	Z<- fit$Z
-	tau<- fit$classprob
-	theta<- fit$itemprob
-	G<- length(tau)
-	M<- ncol(theta)
-	H00<- matrix(0, G*M+G, G*M+G)
-	f<- function(X, theta)	apply(dbinom(t(as.matrix(X)), 1, prob=theta),2, prod)
-	
-	if(any(theta==0)|any(theta==1)){
-	se<- NULL
-	se$itemprob<- NULL
-	se$classprob<- NULL
-	se$convergence<- 4
-	return(se)
-	}
-	
-	if(any(tau==0)){
-	se<- NULL
-	se$itemprob<- NULL
-	se$classprob<- NULL
-	se$convergence<- 4
-	return(se)
-	}
-	
-	##For Tau-Tau term
-	Hdenom<- 0
-	for(g in 1:G) Hdenom<- Hdenom + tau[g]*f(X, theta[g,])
-	Hdenom<- Hdenom^2
-	
-	for(g1 in 1:G){
-		for(g2 in 1:G){
-			
-			#Theta-Theta	
-			Amat<-  (t(counts.n*t(t(X) - theta[g2, ])*(as.numeric(g1==g2) - Z[,g2]))/(theta[g2, ]*(1-theta[g2, ])))%*%t(t(t(t(X) - theta[g1, ])*Z[, g1])/(theta[g1, ]*(1-theta[g1, ])))
-			
-			diag(Amat)<- diag((t(counts.n*t(t(X) - theta[g2, ])*( - Z[,g2]))/(theta[g2, ]*(1-theta[g2, ])))%*%t(t(t(t(X) - theta[g1, ])*Z[, g1])/(theta[g1, ]*(1-theta[g1, ]))))
-			
-			H00[(g1-1)*M + 1:M ,(g2-1)*M + 1:M]<- Amat	
-			
-			##Tau-Theta
-			H00[g1 + G*M, (g2-1)*M + 1:M ]<- H00[(g2-1)*M + 1:M, g1 + G*M ]<- colSums(counts.n*t(t(X) - theta[g2, ])*Z[,g2]*(as.numeric(g1==g2)-Z[,g1]))
-			
-			##Tau-Tau
-			H00[g1+G*M,g2+G*M]<- -sum(counts.n*f(X, theta[g1, ])*f(X, theta[g2, ])/Hdenom)
-			}
-		}
-		
-	
-	e1<- eigen(H00)
-	if(any(e1$values>0)){
-	se<- NULL
-	se$itemprob<- NULL
-	se$classprob<- NULL
-	se$convergence<- 2
-	return(se)
-	} else convergence<- 1
-	
+blca.em.se<-
+function(fit, x, counts.n=1)#, grad.check=FALSE)
+{
+if(class(x) == "data.blca"){
+counts.n<- x$counts.n
+x<- x$data
+}
+G<- length(fit$classprob)
+M<- ncol(fit$itemprob)
 
-	
-	H11<- H00[-(G*M+G), -(G*M+G)]
-	H22<- H00[-(G*M+1), -(G*M+1)]
-	
-	# H11[G*M+(1:(G-1)), G*M+(1:(G-1))]<- (t(counts.n*(Z-Z[,G])/tau[-G])%*%((Z-Z[,G])/tau[-G]))[-G,-G]
-	# H22[G*M+(1:(G-1)), G*M+(1:(G-1))]<- (t(counts.n*(Z-Z[,1])/tau[-1])%*%((Z-Z[,1])/tau[-1] ))[-1,-1]
-	
- 
-	SE1<- sqrt(diag(solve(-H11)))
-	SE2<- sqrt(diag(solve(-H22))) 
-	
-	#SE<- sqrt(diag(solve(-H00)))
-	se<- NULL
-	se$itemprob<- t(matrix(SE1[1:(G*M)], M,G))
-	se$classprob<- c(SE1[G*M+1:(G-1)], SE2[G*M+G-1])
-	se$convergence<- convergence
-	se
-	}
+rm.ind<- c(which(fit$itemprob< 1e-5), which(fit$itemprob>(1 - 1e-5)))
+val.ind<- fit$itemprob[rm.ind]
+
+if(length(rm.ind)>0) parvec<- c(fit$itemprob[-rm.ind], fit$classprob[-G]) else parvec<- c(fit$itemprob, fit$classprob[-G])
+H1<- fdHess(pars=parvec,fun=lp1.intern, dat=x,counts.n=counts.n, rm.ind=rm.ind, prior.list=fit$prior, val.ind=val.ind, G0=G, M0=M)
+
+if(length(rm.ind)>0) parvec<- c(fit$itemprob[-rm.ind], fit$classprob[-1]) else parvec<- c(fit$itemprob, fit$classprob[-1])
+H2<- fdHess(pars=parvec,fun=lp2.intern, dat=x, counts.n=counts.n,rm.ind=rm.ind, prior.list=fit$prior, val.ind=val.ind, G0=G, M0=M)
+
+SE1<- sqrt(diag(solve(-H1$Hessian)))
+SE2<- sqrt(diag(solve(-H2$Hessian)))
+
+if(all(eigen(H1$Hessian, symmetric=TRUE, only.values=TRUE)$values<0)) convergence<- 1 else convergence<- 2
+
+len.parvec.theta<- G*M - length(rm.ind)
+se.theta<- rep(0, G*M)
+if(length(rm.ind)>0) se.theta[-c(rm.ind)]<- SE1[1:len.parvec.theta] else se.theta<- SE1[1:len.parvec.theta]
+se.theta[rm.ind]<- 0
+
+ret<- NULL
+ret$itemprob<- matrix(se.theta, G, M)
+ret$classprob<- c( SE1[(len.parvec.theta + 1):(len.parvec.theta + G-1)], SE2[len.parvec.theta +G-1]   )
+ret$convergence<- convergence
+
+# if(grad.check){
+#   if(all(H1$gradient< 1e-6)){
+#   print("TRUE")
+#   ret$grad<- H1$gradient
+#   ret$grad.check<- TRUE
+#   } else{
+#   ret$grad<- H1$gradient
+#   ret$grad.check<- FALSE
+# }
+# }
+ret
+}

@@ -5,11 +5,10 @@
 Bayesian Latent Class Analysis  via an EM Algorithm
 }
 \description{
-Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.em utilises an expectation-maximisation algorithm to find maximum \emph{a posteriori} (map) estimates of the parameters.}
+Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.em utilises an expectation-maximisation algorithm to find maximum \emph{a posteriori} (map) estimates of the parameters.
+}
 \usage{
-blca.em(X, G, alpha = 1, beta = 1, delta = 1, 
-start.vals = c("single", "across"), counts.n = NULL, iter = 500, 
-se = FALSE, conv = 1e-06, small = 1e-100)
+blca.em(X, G, alpha = 1, beta = 1, delta = 1, start.vals = c("single", "across"), counts.n = NULL, iter = 500, restarts = 5, verbose = TRUE, se = FALSE, conv = 1e-06, small = 1e-100)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,7 +27,7 @@ Prior values for the mixture components in model.  Defaults to 1, i.e., a unifor
 }
 
  \item{start.vals}{
-Denotes how class membership is to be assigned during the initial step of the algorithm. Two character values may be chosen, "single", which randomly assigns data points exclusively to one class, or "across", which assigns class membership via  \code{\link{runif}}. Alternatively, class membership may be pre-specified, either as a vector of class membership, or as a matrix of probabilities. Defaults to "single".
+Denotes how class membership is to be assigned during the initial step of the algorithm. Two character values may be chosen, "single", which randomly assigns data points exclusively to one class, or "across", which assigns class membership via  \code{\link[stats]{runif}}. Alternatively, class membership may be pre-specified, either as a vector of class membership, or as a matrix of probabilities. Defaults to "single".
 }
 \item{counts.n}{
 If data patterns have already been counted, a data matrix consisting of each unique data pattern can be supplied to the function, in addition to a vector counts.n, which supplies the corresponding number of times each pattern occurs in the data. 
@@ -36,7 +35,13 @@ If data patterns have already been counted, a data matrix consisting of each uni
   \item{iter}{
 The maximum number of iterations that the algorithm runs over.  Will stop early if the algorithm is deemed to converge.
 }
- \item{se}{
+  \item{restarts}{
+\code{restarts} determines how many times the algorithm is run with different starting values. Parameter estimates from the run which achieved the highest log-posterior are returned. If starting values are supplied, these are used for the first run, after which random starting points are used. Defaults to 5. 
+}
+  \item{verbose}{
+Logical valued. If \code{TRUE}, the log-posterior from each run is printed.
+}
+  \item{se}{
 Specifies whether standard error estimates should also be returned. If TRUE, calls to {\link{blca.em.se}}.
 }
   \item{conv}{
@@ -50,7 +55,13 @@ To ensure numerical stability a small constant is added to certain parameter est
 Regardless of the form of the data supplied to \code{\link{blca.em}}, it is internally converted to be of the form \code{\link{data.blca}}.  In particular, this should be noted when supplying starting values: the object must be of either the same length or have the same number of rows as the number of \bold{unique} observations in the dataset, as opposed to the total number. 
 }
 \value{
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
 A list of class "blca.em" is returned, containing:
+\item{call}{The initial call passed to the function.}
 \item{itemprob}{The item probabilities, conditional on class membership.}
 \item{classprob}{The class probabilities.}
 \item{Z}{Estimate of class membership for each unique datapoint.}
@@ -61,27 +72,23 @@ A list of class "blca.em" is returned, containing:
 \item{AIC}{Akaike's Information Criterion for the estimated model.}
 \item{iter}{The number of iterations required before convergence.}
 \item{poststore }{The value of the log-posterior for each iteration.}
-\item{eps}{The value at which the algorithm was deemed to have converged at.}
+\item{eps}{The value for which the algorithm was deemed to have converged at.}
 \item{counts}{ The number of times each unique datapoint point occured.}
-\item{convergence}{An integer value denoting whether the algorithm has converged correctly. 1 denotes acceptable convergence, 2 denotes that it converged at a saddle point, 3 that the algorithm ended before it converged  and 4 denotes that at least one parameter value converged at a boundary value.}
+\item{lpstarts}{ The log-posterior achieved after each of the multiple starts of the algorithm. }
+\item{convergence}{An integer value denoting whether the algorithm has converged correctly. 1 denotes acceptable convergence, 2 denotes that it converged at a saddle point, 3 that the algorithm ended before it had satisfactorily converged  and 4 denotes that at least one parameter value converged at a boundary value (i.e., a 1 or 0).}
 \item{prior}{A list containing the prior values specified for the model.}
 \item{se}{A logical value indicating whether standard error estimates were returned. }
 }
-
-
 \references{
+%% ~put references to the literature/web site here ~
 Dempster AP, Laird NM, Rubin DB (1977). ``Maximum Likelihood from Incomplete Data via 
-the EM Algorithm.'' Journal of the Royal Statistical Society. Series B (Methodological), 39(1), 
-pp. 1-38. ISSN 00359246. doi:10.2307/2984875. URL http://dx.doi.org/10.2307/2984875.
+the EM Algorithm.'' Journal of the Royal Statistical Society. Series B (Methodological), \bold{39(1)}, 
+pp. 1--38. ISSN 00359246. doi:10.2307/2984875. URL http://dx.doi.org/10.2307/2984875.
 }
 \author{
 Arthur White
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 \code{\link{blca}}, \code{\link{blca.boot}}, \code{\link{blca.vb}}
@@ -89,7 +96,7 @@ Arthur White
 \examples{
 type1 <- c(0.8, 0.8, 0.2, 0.2)
 type2 <- c(0.2, 0.2, 0.8, 0.8)
-x<- rlca(1000, rbind(type1,type2), c(0.6,0.4))
+x <- rlca(1000, rbind(type1,type2), c(0.6,0.4))
 
 fit <- blca.em(x, 2)
 print(fit)

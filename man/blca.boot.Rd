@@ -2,14 +2,13 @@
 \alias{blca.boot}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Bayesian Latent Class Analysis via an EM Algorithm
+Bayesian Latent Class Analysis via an EM Algorithm and Using Empirical Bootstrapping
 }
 \description{
 Latent class analysis (LCA) attempts to find G hidden classes in binary data X.  blca.boot repeatedly samples from X with replacement then utilises an EM algorithm to find maximum posterior (MAP) and standard error estimates of the parameters.
-}\usage{
-blca.boot(X, G, alpha = 1, beta = 1, delta = rep(1, G), 
-start.vals = c("single", "across"), counts.n = NULL, fit = NULL, 
-iter = 50, B = 100, relabel = FALSE, small = 1e-100)
+}
+\usage{
+blca.boot(X, G, alpha = 1, beta = 1, delta = rep(1, G), start.vals = c("single", "across"), counts.n = NULL, fit = NULL, iter = 50, B = 100, relabel = FALSE, verbose = TRUE, verbose.update = 10, small = 1e-100)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -43,15 +42,20 @@ The number of bootstrap samples to run. Defaults to 100.
   \item{relabel}{
 Logical valued. As the data is recursively sampled, it is possible that label-switching may occur with respect to parameter estimates.  If TRUE, parameter estimates are checked at each iteration, and relabeled if necessary.  Defaults to FALSE.
 }
+  \item{verbose}{
+Logical valued. If TRUE, the current number of completed bootstrap samples is printed at regular intervals.
+}
+  \item{verbose.update}{
+If \code{verbose=TRUE}, \code{verbose.update} determines the periodicity with which updates are printed.
+}
   \item{small}{
 To ensure numerical stability a small constant is added to certain parameter estimates. Defaults to 1e-100.
 }
 }
 \details{
-Bootstrapping methods can be used to estimate properties of a distribution's parameters, such as the standard error estimates, by constructing multiple resamples of an observed dataset, obtained by sampling with replacement from said dataset. The multiple parameter estimates obtained from these resamples may then be analysed. This method is implemented in blca.boot by first running blca.em over the full data set and then using the returned values of the item and class probabilities as the initial values when running the algorithm for each bootstrapped sample.  Alternatively, initial parameter estimates may be specified using the fit argument.
+Bootstrapping methods can be used to estimate properties of a distribution's parameters, such as the standard error estimates, by constructing multiple resamples of an observed dataset, obtained by sampling with replacement from said dataset.  The multiple parameter estimates obtained from these resamples may then be analysed.  This method is implemented in blca.boot by first running blca.em over the full data set and then using the returned values of the item and class probabilities as the initial values when running the algorithm for each bootstrapped sample.  Alternatively, initial parameter estimates may be specified using the fit argument.
 
-Note that if a previously fitted model is supplied, then the prior
-values with which the model was fitted must again be supplied as arguments. Otherwise, bootstrapped samples will fit a model with the default, uniform priors.
+Note that if a previously fitted model is supplied, then the prior values with which the model was fitted will be used for the sampling run, regardless of the values supplied to the prior arguments.
 }
 \value{
 %%  ~Describe the value returned
@@ -60,6 +64,7 @@ values with which the model was fitted must again be supplied as arguments. Othe
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
 A list of class "blca.boot" is returned, containing:
+\item{call}{The initial call passed to the function.}
 \item{itemprob}{The item probabilities, conditional on class membership.}
 \item{classprob}{The class probabilities.}
 \item{Z}{Estimate of class membership for each unique datapoint.}
@@ -75,16 +80,11 @@ A list of class "blca.boot" is returned, containing:
 \item{prior}{A list containing the prior values specified for the model.}
 }
 \references{
-%% ~put references to the literature/web site here ~
+   Wasserman, L, 22nd May 2007, \emph{All of Nonparametric Statistics}, Springer-Verlag.
 }
 \author{
 Arthur White
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 \code{\link{blca.em}}, \code{\link{blca}}
@@ -92,16 +92,14 @@ Arthur White
 \examples{
 type1 <- c(0.8, 0.8, 0.2, 0.2)
 type2 <- c(0.2, 0.2, 0.8, 0.8)
-x<- rlca(1000, rbind(type1,type2), c(0.6,0.4))
+x <- rlca(1000, rbind(type1,type2), c(0.6,0.4))
 fit.boot <- blca.boot(x, 2)
 summary(fit.boot)
 
-fit<- blca.em(x, 2, se=FALSE)
-fit.boot<- blca.boot(x, 2, fit=fit)
+fit <- blca.em(x, 2, se=FALSE)
+fit.boot <- blca.boot(x, 2, fit=fit)
 fit.boot
-plot(fit.boot)
+plot(fit.boot, which=1:4)
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ bootstrap }
 \keyword{ blca }% __ONLY ONE__ keyword per line

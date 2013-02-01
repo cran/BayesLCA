@@ -5,12 +5,10 @@
 Bayesian Latent Class Analysis via Gibbs Sampling
 }
 \description{
-Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.gibbs performs gibbs sampling to sample from the parameters' true distribution.
+Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.gibbs performs Gibbs sampling to sample from the parameters' true distribution.
 }
 \usage{
-blca.gibbs(X, G, alpha = 1, beta = 1, delta = 1, 
-start.vals = c("prior", "single", "across"), counts.n = NULL, iter = 5000, 
-accept = 1, burn.in = 100, relabel = TRUE)
+blca.gibbs(X, G, alpha = 1, beta = 1, delta = 1, start.vals = c("prior", "single", "across"), counts.n = NULL, iter = 5000, thin = 1, burn.in = 100, relabel = TRUE, verbose = TRUE, verbose.update = 1000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -37,18 +35,24 @@ If data patterns have already been counted, a data matrix consisting of each uni
   \item{iter}{
 The number of iterations to run the gibbs sampler for \bold{after} burn-in.
 }
-  \item{accept}{
-The acceptance rate for samples from the distribution, in order to achieve good mixing. Defaults to 1.
+  \item{thin}{
+The thinning rate for samples from the distribution, in order to achieve good mixing. Should take a value greater  >0 and <=1. Defaults to 1.
 }
   \item{burn.in}{
-Number of iterations to run the gibbs sampler for before beginning to store values.
+Number of iterations to run the Gibbs sampler for before beginning to store values.
 }
  \item{relabel}{
 Logical, indicating whether a mechanism to prevent label-switching be used or not. Defaults to TRUE.
 }
+  \item{verbose}{
+Logical valued. If TRUE, the current number of completed samples is printed at regular intervals.
+}
+  \item{verbose.update}{
+If \code{verbose=TRUE}, \code{verbose.update} determines the periodicity with which updates are printed.
+}
 }
 \details{
-While plot and summary methods exist for this function, their scope is currently quite limited. The function\code{\link{blca2mcmc}}, which makes \code{blca.gibbs} objects compatible with functions such as \code{\link[coda]{summary.mcmc}} and \code{\link[coda]{raftery.diag}},  is recommended.
+The library coda provide extensive tools to diagnose and visualise MCMC chains. The generic function \code{\link{as.mcmc.blca.gibbs}}, makes \code{blca.gibbs} objects compatible with functions such as \code{\link[coda]{summary.mcmc}} and \code{\link[coda]{raftery.diag}}.
 }
 \value{
 %%  ~Describe the value returned
@@ -57,6 +61,7 @@ While plot and summary methods exist for this function, their scope is currently
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
 A list of class "blca.gibbs" is returned, containing:
+\item{call}{The initial call passed to the function.}
 \item{classprob}{The class probabilities.}
 \item{itemprob}{The item probabilities, conditional on class membership.}
 \item{classprob.se}{If returned, standard error estimates of the class probabilities.}
@@ -69,7 +74,7 @@ A list of class "blca.gibbs" is returned, containing:
 \item{AICM}{Akaike's Information Criterion (Monte Carlo) for the estimated model.}
 \item{counts}{ The number of times each unique datapoint point occured.}
 \item{prior}{A list containing the prior values specified for the model.}
-\item{accept}{The acceptance rate for samples from the distribution.}
+\item{thin}{The acceptance rate for samples from the distribution.}
 \item{burn.in}{The number of iterations the gibbs sampler was run before beginning to store values.}
 \item{relabel}{Logical, indicating whether a mechanism to prevent label-switching was used.}
 \item{labelstore}{The stored labels during the sampling run. If relabel=TRUE, these show how labels were permuted in an attempt to avoid label-switching in the model.}
@@ -86,14 +91,10 @@ pp. 1-45.
 \author{
 Arthur White
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{blca}}, \code{\link{blca2mcmc}}, \code{\link[coda]{raftery.diag}}
+\code{\link{blca}}, \code{\link{as.mcmc.blca.gibbs}}, \code{\link[coda]{raftery.diag}}
 }
 \examples{
 ## Generate a 4-dim. sample with 2 latent classes of 500 data points each.
@@ -107,12 +108,12 @@ fit.gibbs<-blca.gibbs(x,2, iter=1000, burn.in=10)
 summary(fit.gibbs)
 plot(fit.gibbs)
 
-raftery.diag(blca2mcmc(fit.gibbs))
+raftery.diag(as.mcmc(fit.gibbs))
 
 
-\dontrun{fit.gibbs<-blca.gibbs(x,2, iter=10000, burn.in=100, accept=0.5) }
+\dontrun{fit.gibbs<-blca.gibbs(x,2, iter=10000, burn.in=100, thin=0.5) }
 \dontrun{plot(fit.gibbs, which=4)}
-\dontrun{raftery.diag(blca2mcmc(fit.gibbs))}
+\dontrun{raftery.diag(as.mcmc(fit.gibbs))}
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -1,5 +1,5 @@
 blca.em <-
-function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.n=NULL, iter=500, se=FALSE, conv=1e-6, small=1e-100)
+function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.n=NULL, iter=500, restarts=5, verbose=TRUE, se=FALSE, conv=1e-6, small=1e-100)
 {
 	if(is.null(counts.n))
 	{
@@ -56,9 +56,22 @@ function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.
 		
 	counter<-0
 	llstore<-0
-	
+	llcheck<- -Inf
+
+	if(is.numeric(restarts)){
+	  if(length(restarts)>1){
+	    restarts<- restarts[1]
+	    warning("restarts improperly specified - first value will be used, other values will be ignored")
+	    }# else {stop("restarts improperly specified. Must be an integer of length 1.")}
+	} else {stop("restarts improperly specified. Must be an integer of length 1.")}
+
+	multistart.lp.store<- rep(0, restarts)
+
 	#Set Parameters
+	for(r in 1:restarts){
+
 	if(is.character(start.vals)){
+	  
 	  if(start.vals[1]=="single"){
 	    Z<-unMAP(sample(1:G,size=N,replace=TRUE))
 	    if(ncol(Z)<G) Z<-cbind(Z, matrix(0,nrow=N, ncol=(G-ncol(Z))))
@@ -75,7 +88,7 @@ function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.
 		    } else stop("start.vals improperly specified. See help files for more details.")
 		 }
 	  }	
-	
+
 	while(abs(eps)>conv || counter< 20)
 	{	
 		Z.sum<-colSums(Z*counts.n)
@@ -107,47 +120,72 @@ function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.
 		}			
 				
 		counter<-counter+1		
-		if(counter>iter){print("Max iter Reached"); break}
+		if(counter>iter) break 
 		}#while
+
+		if(l > llcheck){
+		if(r>1 & verbose==TRUE)  cat("New maximum found... ")
+		  rstore<- list(Thetat=Thetat, Taut=Taut,Z=Z, l=l, llstore=llstore, counter=counter, eps=eps)
+		  
+		  llcheck<- l
+		  }
+		
+		if(verbose==TRUE){ cat(paste("Restart number ", r, ", logpost = ", round(l, 2), "... \n", sep=""))}
+		multistart.lp.store[r]<- l
+		
+		eps<-N1*M  ## Very important to reset these!!!
+		counter<-0
+		llstore<-0
+		if(r==1 & (is.matrix(start.vals) | is.numeric(start.vals)))  start.vals<- "single"
+		}#r
+		l<- llcheck 
+		o<- order(rstore$Taut, decreasing=TRUE)
+
 		x<-NULL
 		x$call<- match.call()
 		#Z.return<-matrix(0, N1, G)
 		#for(g in 1:G) Z.return[,g]<-rep(Z[,g], counts.n)
 		
-		x$itemprob<-Thetat
+		x$itemprob<-rstore$Thetat[o, ]
 		if(!is.null(colnames(X))) colnames(x$itemprob)<- colnames(X)
-		x$classprob<-Taut
-		x$Z<-Z
-		rownames(x$Z)<- names(counts.n)
-		colnames(x$Z)<- paste("Group", 1:G)
+		x$classprob<- rstore$Taut[o]
+		x$Z<- rstore$Z[,o];
+		rownames(x$Z)<- names(counts.n);
+		colnames(x$Z)<- paste("Group", 1:G);
+		
+		x$logpost<- l
+		x$BIC<- 2*l-(G*M + G-1)*log(N1)
+		x$AIC<- 2*l - 2*(G*M + G-1)
+		x$iter<- length(rstore$llstore)
+		x$poststore<- rstore$llstore
+		x$eps<- rstore$eps
+		x$counts<- counts.n
+		x$lpstarts<- multistart.lp.store
+		
+		x$prior<-NULL
+		x$prior$alpha<- alpha[o,]
+		x$prior$beta<- beta[o,]
+		x$prior$delta<- delta[o]
 
 		s.e.<- blca.em.se(x,X,counts.n)
 		if(se){
-			if(any(x$itemprob==0)) warning("Some item probability estimates are exactly zero. Standard errors in this case are undefined.")
-			if(any(x$classprob==0)) warning("Some class probability estimates are exactly zero. Standard errors in this case are undefined.")	
+#			if(any(x$itemprob==0)){ warning("Some item probability estimates are exactly zero. Standard errors in this case are undefined.")}
+#			if(any(x$classprob==0)){ warning("Some class probability estimates are exactly zero. Standard errors in this case are undefined.")}
 			x$itemprob.se<- s.e.$itemprob
-			x$classprob.se<- s.e.$classprob		
+			x$classprob.se<- s.e.$classprob
 		} 
-		
-		x$logpost<-l
-		x$BIC<- 2*l-(G*M + G-1)*log(N1)
-		x$AIC<- 2*l - 2*(G*M + G-1)
-		x$iter<-counter
-		x$poststore<-llstore
-		x$eps<-eps
-		x$counts<- counts.n
-		if(counter>iter) convergence<- 3 else convergence<- s.e.$convergence
-		if(convergence==2) warning("Some point estimates likely converged at saddle-point.")
-		if(convergence==4) print("Some point estimates located at boundary (i.e., are 1 or 0) - standard errors will be undefined in this case.")
+
+		if(counter>iter){ 
+		  convergence<- 3 
+		  warning("Maximum iteration reached - algorithm not deemed to have converged. Rerunning the function with 'iter' set to a higher value is recommended.")
+		} else{ convergence<- s.e.$convergence}
+		if(convergence==2) {warning("Some point estimates likely converged at saddle-point. At least some points will not be at a local maximum. Rerunning the function with a larger number of restarts is recommended.")}
+		if(convergence==4){ warning("Some point estimates located at boundary (i.e., are 1 or 0). Standard errors will be 0 for these values.")}
 		x$convergence<- convergence
-		
-		x$prior<-NULL
-		x$prior$alpha<- alpha
-		x$prior$beta<- beta
-		x$prior$delta<- delta
+
 		x$small<- small
 		if((se==TRUE)&&(is.null(s.e.$classprob))) se<- FALSE
 		x$se<- se
-		class(x)<-"blca.em"		
+		class(x)<-c("blca.em", "blca")
 		x
 		}

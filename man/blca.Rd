@@ -39,17 +39,9 @@ A list of class "blca" is returned. All methods return the following items:
 
 See additional help files for  details.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
 \author{
-%%  ~~who you are~~
+Arthur White
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 \code{\link{blca.em}}, \code{\link{blca.boot}}, \code{\link{blca.gibbs}}, \code{\link{blca.vb}}
@@ -73,7 +65,7 @@ set.seed(1)
 fit3 <- blca(x, 2, method="vb", delta=c(5,5), alpha=2, beta=1) 
 print(fit3)	##Standard errors returned also.
 par(mfrow=c(3,2))			  
-plot(fit3)
+plot(fit3, which=3:4)
 par(mfrow=c(1,1))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

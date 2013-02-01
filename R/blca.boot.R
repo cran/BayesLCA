@@ -1,12 +1,17 @@
 blca.boot <-
-function(X,G, alpha=1,beta=1, delta=rep(1,G), start.vals= c("single","across"), counts.n=NULL, fit=NULL, iter=50,  B=100, relabel=FALSE, small=1e-100)
+function(X,G, alpha=1,beta=1, delta=rep(1,G), start.vals= c("single","across"), counts.n=NULL, fit=NULL, iter=50,  B=100, relabel=FALSE, verbose=TRUE, verbose.update=10, small=1e-100)
 {			
 	if(is.null(fit)){
+		if(verbose==TRUE) cat("Object 'fit' not supplied. Obtaining starting values via blca.em...\n")
 		x<-blca.em(X, G, iter=500, conv=1e-10, alpha=alpha, beta=beta, delta=delta, start.vals= start.vals)
 		conv<-x$eps
+		if(verbose==TRUE) cat("Starting values obtained...\n")
 	} else {
 		x<- fit
 		conv<- x$eps
+		alpha<- x$prior$alpha
+		beta<- x$prior$alpha
+		delta<- x$prior$delta
 	}
 	Tn.Theta<-x$itemprob 
 	Tn.Tau<-x$classprob
@@ -63,7 +68,8 @@ if(!is.matrix(alpha)){
 	countsorig.n<-counts.n 
 	Zcheck<- sqrt(countsorig.n)*Zorig
 	Nstar<-N
-	
+	swapcheck<- FALSE
+
 	##Store Values
 	Ti.Theta<-array(0,dim=c(B,G,M))
 	Ti.Tau<-matrix(0,B,G)
@@ -71,11 +77,13 @@ if(!is.matrix(alpha)){
 	rownames(Z0)<- names(countsorig.n)
 	colnames(Z0)<- paste("Group", 1:G)
 	if(relabel) labelstore<- matrix(0,B,G)
+	if(verbose==TRUE) cat("Beginning bootstrapping run...\n")
 	####
 	##Bootstrap Estimates
 	####
 	for(b in 1:B)
 	{
+	if(verbose==TRUE & b%%verbose.update == 0) cat(b, "of", B, "samples completed...\n")
 			
 	counts.n<-table(sample(1:N,N1, replace=TRUE, prob=countsorig.n))
 	lab1<- as.numeric(names(counts.n))
@@ -126,6 +134,7 @@ if(!is.matrix(alpha)){
 			}#while
 		  Z1<- matrix(0, Nstar, G)
 		  Z1[lab1, ]<- Z
+
 		if(relabel){
 		  Z1<- matrix(0, Nstar, G)
 		  Z1[lab1, ]<- Z
@@ -137,6 +146,7 @@ if(!is.matrix(alpha)){
 		 # }
 		  match1<- matchClasses(t(Zcheck)%*%(sqrt(c1)*Z1), method='exact', verbose=FALSE)
 		  labelstore[b, ]<- match1
+		  if(swapcheck == FALSE & any(match1 != 1:G)) swapcheck<- TRUE
 		  } else match1<- 1:G
 		#if(any(is.nan(Z1))) match1<- matchClasses(t(Zcheck[lab1, ])%*%Z1[lab1,], method='exact', verbose=FALSE) else match1<- matchClasses(t(Zcheck)%*%Z1, method='exact', verbose=FALSE)
 
@@ -151,30 +161,35 @@ if(!is.matrix(alpha)){
 			N<-nrow(X)
 			}
 		}#b
+	if(verbose==TRUE) cat("Bootstrap sampling run completed.\n")
+	if(swapcheck==TRUE) warning("Some samples re-labelled to prevent label switching occurring. Some checking of density plots is recommended. Use '?plot.blca' for more details. ")
 		
 	######
 	##Return Values
-	######	
+	######
+	tau<- apply(Ti.Tau,2,mean)
+	o<- order(tau, decreasing=TRUE)
+
 	boot<-NULL
 	boot$call<- match.call()
-	boot$itemprob<-apply(Ti.Theta, c(2,3),mean)
-	boot$classprob<-apply(Ti.Tau,2,mean)
-	boot$Z<- Z0
-	boot$itemprob.se<- sqrt(apply(Ti.Theta, c(2,3),var))
-	boot$classprob.se<- sqrt(apply(Ti.Tau,2,var))
+	boot$itemprob<-apply(Ti.Theta, c(2,3),mean)[o,]
+	boot$classprob<- tau[o]
+	boot$Z<- Z0[,o]
+	boot$itemprob.se<- sqrt(apply(Ti.Theta, c(2,3),var))[o,]
+	boot$classprob.se<- sqrt(apply(Ti.Tau,2,var))[o]
 	
 	boot$classprob.initial<-x$classprob
 	boot$itemprob.initial<-x$itemprob
 	
 	boot$samples<-NULL
 	
-	boot$samples$classprob<-Ti.Tau
-	boot$samples$itemprob<-Ti.Theta
+	boot$samples$classprob<-Ti.Tau[, o]
+	boot$samples$itemprob<-Ti.Theta[, o, ]
 	
 	dum<-array(apply(boot$itemprob, 1, dbinom, size=1, x=t(X)), dim=c(M,N,G))
 	Z1<-t(boot$classprob*t(apply(dum, c(2,3), prod)))
 	
-	boot$logpost<-sum(log(rowSums(Z1))*countsorig.n)+sum(xlogy(alpha-1,boot$itemprob)+xlogy(beta-1,1-boot$itemprob))+sum(xlogy(delta-1, boot$classprob))
+	boot$logpost<-sum(log(rowSums(Z1))*countsorig.n)+sum(xlogy(alpha[o, ]-1,boot$itemprob)+xlogy(beta[o, ]-1,1-boot$itemprob))+sum(xlogy(delta[o]-1, boot$classprob))
 	
 	boot$BIC<- 2*boot$logpost - (G*M + G-1)*log(N1)
 	boot$AIC<- 2*boot$logpost - 2*(G*M + G-1)
@@ -187,10 +202,10 @@ if(!is.matrix(alpha)){
 	boot$counts<- countsorig.n
 	
 	boot$prior<-NULL
-	boot$prior$alpha<- alpha
-	boot$prior$beta<- beta
-	boot$prior$delta<- delta
+	boot$prior$alpha<- alpha[o, ]
+	boot$prior$beta<- beta[o, ]
+	boot$prior$delta<- delta[o]
 	
-	class(boot)<-"blca.boot"
+	class(boot)<-c("blca.boot", "blca")
 	boot
 	}

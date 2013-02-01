@@ -26,9 +26,7 @@ A list of class data.blca, containing
   \item{data }{A matrix consisting of each unique data entry.}
 
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Arthur White
 }
@@ -44,7 +42,7 @@ This function is used internally by \code{\link{blca}}, so its use is not necess
 \examples{
 type1 <- c(0.8, 0.8, 0.2, 0.2)
 type2 <- c(0.2, 0.2, 0.8, 0.8)
-x<- rlca(1000, rbind(type1,type2), c(0.6,0.4))
+x<- rlca(1000, rbind(type1,type2), c(0.6,0.4)) ##Only 16 unique observations possible
 
 data.blca(x)
 }

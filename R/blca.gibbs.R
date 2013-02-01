@@ -1,5 +1,5 @@
 blca.gibbs <-
-function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across"), counts.n=NULL, iter=5000, accept=1, burn.in=100, relabel=TRUE)
+function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across"), counts.n=NULL, iter=5000, thin=1, burn.in=100, relabel=TRUE, verbose=TRUE, verbose.update=1000)
 {
 	if(is.null(counts.n))
 	{
@@ -86,7 +86,8 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across")
 	  }	
 
 	#Store Values
-	Kstore<-iter*accept
+	maxiter<- iter
+	Kstore<-maxiter*thin
 	taustore<-matrix(NA,Kstore,G)
 	thetastore<-array(NA,c(Kstore,G,M))
 	labelstore<-matrix(NA, Kstore,G)
@@ -96,22 +97,27 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across")
 	W<-matrix(nrow=N, ncol=G)
 	Zstore<-matrix(0, N, G)
 	label.swap<- FALSE
-	
+
+	if(verbose==TRUE) cat("Initialising sampler...starting burn-in.\n")
 	#Gibbs Sampler
-	for (iter in 1:(iter+burn.in))
+	for (iter in 1:(maxiter+burn.in))
 	{
 		for(g in 1:G)	W[,g]<-tau[g]*apply(theta[g,]^t(X)*(1-theta[g,])^t(1-X),2,prod) # g
 	
 		Z<-Zsamp(W, counts.n) 
 
-		if(iter==burn.in+1) Zmatch<- counts.n*Z
+		if(iter==burn.in+1){
+		  if(verbose==TRUE) cat("Burn-in completed...\n")
+		  Zmatch<- counts.n*Z
+		  }
 		
 		tau<-rdirichlet(1,delta+colSums(Z))
 
 		for(g in 1:G) theta[g,]<-rbeta(M,alpha+colSums(Z[,g]*X), beta+colSums(Z[,g]*(1-X)))
 
-		if((iter>burn.in)&&(iter%%round(1/accept)==0))
+		if((iter>burn.in)&&(iter%%round(1/thin)==0))
 		{
+			if(verbose==TRUE & (iter-burn.in)%%verbose.update == 0) cat(iter - burn.in, "of", maxiter, "samples completed...\n")
 			match1<- matchClasses(t(Z)%*%Zmatch, method="exact", verbose=FALSE)
 			if(any(match1!=1:G)) label.swap<- TRUE
 			labelstore[counter,]<- match1
@@ -131,13 +137,16 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across")
 			if(counter>Kstore) break
 			}
 		} #iter
+	if(verbose==TRUE) cat("Sampling run completed.\n")
+	tau<- apply(taustore, 2, mean)
+	o<- order(tau, decreasing=TRUE)
 
 	x<-NULL
 	x$call<- match.call()
-	x$classprob<- apply(taustore, 2, mean)
-	x$itemprob<- apply(thetastore, c(2,3), mean)
-	x$classprob.se<- apply(taustore, 2, sd)
-	x$itemprob.se<- apply(thetastore, c(2,3), sd)
+	x$classprob<- tau[o]
+	x$itemprob<- apply(thetastore, c(2,3), mean)[o,]
+	x$classprob.se<- apply(taustore, 2, sd)[o]
+	x$itemprob.se<- apply(thetastore, c(2,3), sd)[o, ]
 	
 	dum<-array(apply(x$itemprob,1,dbinom, size=1, x=t(X)), dim=c(M,N,G))
 
@@ -145,13 +154,13 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across")
 
 	x$logpost<- sum(log(rowSums(Z1))*counts.n) + sum(xlogy(alpha-1, x$itemprob) + xlogy(beta-1, 1- x$itemprob) + sum(xlogy(delta-1, x$classprob)))
 	
-	x$Z<- Zstore/counts.n
+	x$Z<- (Zstore/counts.n)[, o]
 	rownames(x$Z)<- names(counts.n)
 	colnames(x$Z)<- paste("Group", 1:G)
 	
 	x$samples<-NULL
-	x$samples$classprob<-taustore
-	x$samples$itemprob<-thetastore
+	x$samples$classprob<-taustore[, o]
+	x$samples$itemprob<-thetastore[, o, ]
 	x$samples$logpost<- logpost.store
 	
 	if(!is.null(colnames(X))){
@@ -169,19 +178,19 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across")
 	x$counts<- counts.n
 	
 	x$prior<-NULL
-	x$prior$alpha<- alpha
-	x$prior$beta<- beta
-	x$prior$delta<- delta
+	x$prior$alpha<- alpha[o, ]
+	x$prior$beta<- beta[o, ]
+	x$prior$delta<- delta[o]
 
-	x$accept<-accept	
+	x$thin<-thin
 	x$burn.in<-burn.in
 	x$relabel<- relabel
 	x$labelstore<-labelstore
 
-	class(x)<-"blca.gibbs"
+	class(x)<-c("blca.gibbs", "blca")
 	#if(relabel && matchClasses(t(Z)%*%Z1, method="exact", verbose=FALSE)) warning("Label-switching (provisionally) corrected for - proceed with caution")
-	if(relabel && label.swap) warning("Label-switching (provisionally) corrected for - proceed with caution")
-	if(!relabel && label.swap) warning("Label-switching may have occurred - proceed with caution")
+	if(relabel && label.swap) warning("Label-switching (provisionally) corrected for - diagnostic plots are recommended. Use '?plot.blca' for details.")
+	if(!relabel && label.swap) warning("Label-switching may have occurred - diagnostic plots are recommended. Use '?plot.blca' for details.")
 	
 x
 }
