@@ -175,8 +175,8 @@ if(!is.matrix(alpha)){
 	boot$itemprob<-apply(Ti.Theta, c(2,3),mean)[o,]
 	boot$classprob<- tau[o]
 	boot$Z<- Z0[,o]
-	boot$itemprob.se<- sqrt(apply(Ti.Theta, c(2,3),var))[o,]
-	boot$classprob.se<- sqrt(apply(Ti.Tau,2,var))[o]
+	boot$itemprob.sd<- boot$itemprob.se<- sqrt(apply(Ti.Theta, c(2,3),var))[o,]
+	boot$classprob.sd<- boot$classprob.se<- sqrt(apply(Ti.Tau,2,var))[o]
 	
 	boot$classprob.initial<-x$classprob
 	boot$itemprob.initial<-x$itemprob

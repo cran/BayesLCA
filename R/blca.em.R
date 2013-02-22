@@ -1,5 +1,5 @@
 blca.em <-
-function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.n=NULL, iter=500, restarts=5, verbose=TRUE, se=FALSE, conv=1e-6, small=1e-100)
+function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.n=NULL, iter=500, restarts=5, verbose=TRUE, sd=FALSE, se=sd, conv=1e-6, small=1e-100)
 {
 	if(is.null(counts.n))
 	{
@@ -107,8 +107,8 @@ function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.
 		Z<-Z1/rowSums(Z1)
 
 		#Log-Posterior
-		l<-sum(log(rowSums(Z1))*counts.n)+sum(xlogy(alpha-1,Thetat)+xlogy(beta-1,1-Thetat))+sum(xlogy(delta-1, Taut))
-				
+		l<-sum(log(rowSums(Z1))*counts.n)+sum(xlogy(alpha-1,Thetat)+xlogy(beta-1,1-Thetat))+sum(xlogy(delta-1, Taut)) + lgamma(sum(delta)) - sum(lgamma(delta)) + sum(lgamma(alpha + beta)) - sum(lgamma(alpha) + lgamma(beta))
+
 		llstore[counter]<-l
 		if(counter>2)
 		{
@@ -147,15 +147,17 @@ function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.
 		#for(g in 1:G) Z.return[,g]<-rep(Z[,g], counts.n)
 		
 		x$itemprob<-rstore$Thetat[o, ]
-		if(!is.null(colnames(X))) colnames(x$itemprob)<- colnames(X)
+		if(!is.null(colnames(X)))if (G>1) colnames(x$itemprob)<- colnames(X) else names(x$itemprob)<- colnames(X)
 		x$classprob<- rstore$Taut[o]
 		x$Z<- rstore$Z[,o];
-		rownames(x$Z)<- names(counts.n);
-		colnames(x$Z)<- paste("Group", 1:G);
+		if(G>1) rownames(x$Z)<- names(counts.n) else names(Z)<- names(counts.n)
+		if(G>1) colnames(x$Z)<- paste("Group", 1:G)
 		
 		x$logpost<- l
-		x$BIC<- 2*l-(G*M + G-1)*log(N1)
-		x$AIC<- 2*l - 2*(G*M + G-1)
+  
+		likl<- l - sum(xlogy(alpha-1,Thetat)+xlogy(beta-1,1-Thetat))+sum(xlogy(delta-1, Taut)) + lgamma(sum(delta)) - sum(lgamma(delta)) + sum(lgamma(alpha + beta)) - sum(lgamma(alpha) + lgamma(beta))
+		x$BIC<- 2*likl-(G*M + G-1)*log(N1)
+		x$AIC<- 2*likl - 2*(G*M + G-1)
 		x$iter<- length(rstore$llstore)
 		x$poststore<- rstore$llstore
 		x$eps<- rstore$eps
@@ -167,25 +169,26 @@ function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.
 		x$prior$beta<- beta[o,]
 		x$prior$delta<- delta[o]
 
-		s.e.<- blca.em.se(x,X,counts.n)
-		if(se){
+		if(G>1){
+		  s.e.<- blca.em.sd(x,X,counts.n)
+		if(se ){
 #			if(any(x$itemprob==0)){ warning("Some item probability estimates are exactly zero. Standard errors in this case are undefined.")}
 #			if(any(x$classprob==0)){ warning("Some class probability estimates are exactly zero. Standard errors in this case are undefined.")}
-			x$itemprob.se<- s.e.$itemprob
-			x$classprob.se<- s.e.$classprob
+			x$itemprob.sd<- x$itemprob.se<- s.e.$itemprob
+			x$classprob.sd<- x$classprob.se<- s.e.$classprob
 		} 
 
 		if(counter>iter){ 
 		  convergence<- 3 
 		  warning("Maximum iteration reached - algorithm not deemed to have converged. Rerunning the function with 'iter' set to a higher value is recommended.")
 		} else{ convergence<- s.e.$convergence}
-		if(convergence==2) {warning("Some point estimates likely converged at saddle-point. At least some points will not be at a local maximum. Rerunning the function with a larger number of restarts is recommended.")}
-		if(convergence==4){ warning("Some point estimates located at boundary (i.e., are 1 or 0). Standard errors will be 0 for these values.")}
+		if(convergence==2) {warning("Some point estimates likely converged at saddle-point. At least some points will not be at a local maximum. \n Rerunning the function with a larger number of restarts is recommended.")}
+		if(convergence==4){ warning("Some point estimates located at boundary (i.e., are 1 or 0). Posterior standard deviations will be 0 for these values.")}
 		x$convergence<- convergence
-
+		} else x$convergence<- 1
 		x$small<- small
 		if((se==TRUE)&&(is.null(s.e.$classprob))) se<- FALSE
-		x$se<- se
+		x$sd<- x$se<- se
 		class(x)<-c("blca.em", "blca")
 		x
 		}

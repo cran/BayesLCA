@@ -1,5 +1,6 @@
 \name{as.mcmc.blca.gibbs}
 \alias{as.mcmc.blca.gibbs}
+\alias{blca2mcmc}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Converts \code{blca.gibbs} Objects to type \code{mcmc}
@@ -9,6 +10,7 @@ Converts blca objects to mcmc objects.  This is only to be used with the Gibbs s
 }
 \usage{
 as.mcmc.blca.gibbs(fit)
+blca2mcmc(fit)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -26,6 +28,10 @@ An \eqn{N \times G*(M+1)} matrix of class \code{\link[coda]{mcmc}}, where N is t
 Arthur White
 }
 
+\note{
+The function \code{as.mcmc.blca.gibbs} replaces the function \code{mcmc2blca}, which appeared in the original version of the package, and which is retained as internal function for backwards compatibility reasons.
+
+}
 
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~

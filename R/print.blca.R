@@ -33,12 +33,12 @@ if(!is.null(btau.se)) z$se$MembershipProb<- btau.se
 	print(round(z$MembershipProb,3))
 
 if(!is.null(btheta.se)){	
-	cat("\nStandard Error Estimates:\n", "\n")
+	cat("\nPosterior Standard Deviation Estimates:\n", "\n")
 	cat("\nItem Probabilities:\n", "\n")
 	print(round(z$se$ItemProb, 3))
 	
 	cat("\nMembership Probabilities:\n", "\n")
 	print(round(z$se$MembershipProb, 3))
-} else warning("Standard errors not returned.", call.=FALSE)
+} else warning("Posterior standard deviations not returned.", call.=FALSE)
 
 }

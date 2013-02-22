@@ -11,7 +11,15 @@ function(x, which=1L, main="", ...){
 	 Theta<- x$itemprob
 	Tau<- x$classprob
 	
-	 M<- ncol(Theta)
+	sel<- Tau<1e-6 
+	if(any(sel)){
+		warning("The following groups have negligible membership probability, and will be omitted from the plotting device: ", "\n", 
+		paste(rep("Group", sum(sel)), which(sel), collapse=","), ".")
+		Tau<- Tau[!sel]
+		Theta<- Theta[!sel,]
+	}
+
+	M<- ncol(Theta)
 	G<- nrow(Theta)
 	xcut<-c(0,cumsum(Tau))
 	ycut<-0:M
@@ -174,6 +182,7 @@ function(x, which=1L, main="", ...){
 			if(show[8]){
 		
 	M<-dim(x$itemprob)[2]
+	G<-dim(x$itemprob)[1]
 		 
 	if(is.null(dimnames(x$itemprob)[2])){
 		caption<-paste(rep("Column",M), 1:M)
@@ -181,12 +190,13 @@ function(x, which=1L, main="", ...){
 	else caption<- dimnames(x$itemprob)[2][[1]]
 	
 	for(m in 1:M){
-		matplot(x$samples$itemprob[,,m],  type='l', main=main, sub="Parameter Chains", ylab="Item Probability", xlab="Iteration", col=1:G+1,...)
+		matplot(x$samples$itemprob[,G:1,m],  type='l', main=main, sub="Parameter Chains", ylab="Item Probability", xlab="Iteration", col=G:1+1,...)
 		mtext(caption[m], 3, 0.25)		
 		
 		}
 		
-	matplot(x$samples$classprob,  type='l', main=main, sub="Parameter Chains", ylab="Class Probability", xlab="Iteration",col= 1:G +1 ,...)	
+	matplot(x$samples$classprob[,G:1],  type='l', main=main, sub="Parameter Chains", ylab="Class Probability", xlab="Iteration",col= G:1 +1 ,...)
+		mtext("Conditional Membership", 3, 0.25)
 		} ## Show8, Gibbs Diagnostic
 			if(show[9]){
 		

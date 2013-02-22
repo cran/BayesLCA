@@ -8,7 +8,7 @@ Bayesian Latent Class Analysis via Gibbs Sampling
 Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.gibbs performs Gibbs sampling to sample from the parameters' true distribution.
 }
 \usage{
-blca.gibbs(X, G, alpha = 1, beta = 1, delta = 1, start.vals = c("prior", "single", "across"), counts.n = NULL, iter = 5000, thin = 1, burn.in = 100, relabel = TRUE, verbose = TRUE, verbose.update = 1000)
+blca.gibbs(X, G, alpha = 1, beta = 1, delta = 1, start.vals = c("prior", "single", "across"), counts.n = NULL, iter = 5000, thin = 1, accept=thin, burn.in = 100, relabel = TRUE, verbose = TRUE, verbose.update = 1000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -38,6 +38,9 @@ The number of iterations to run the gibbs sampler for \bold{after} burn-in.
   \item{thin}{
 The thinning rate for samples from the distribution, in order to achieve good mixing. Should take a value greater  >0 and <=1. Defaults to 1.
 }
+  \item{accept}{
+Similarly to \code{accept}, specifies the thinning rate for samples from the distribution, in order to achieve good mixing, however, its use is discouraged. Should always agree with \code{sd}. Retained for backwards compatability reasons. See `Note'.
+}
   \item{burn.in}{
 Number of iterations to run the Gibbs sampler for before beginning to store values.
 }
@@ -64,8 +67,8 @@ A list of class "blca.gibbs" is returned, containing:
 \item{call}{The initial call passed to the function.}
 \item{classprob}{The class probabilities.}
 \item{itemprob}{The item probabilities, conditional on class membership.}
-\item{classprob.se}{If returned, standard error estimates of the class probabilities.}
-\item{itemprob.se}{If returned, standard error estimates of the item probabilities.}
+\item{classprob.sd}{Posterior standard deviation estimates of the class probabilities.}
+\item{itemprob.sd}{Posterior standard deviation estimates of the item probabilities.}
 \item{logpost}{The log-posterior of the estimated model.}
 \item{Z}{Estimate of class membership for each unique datapoint.}
 \item{samples}{A list containing Gibbs samples of the item and class probabilities and log-posterior.}
@@ -91,8 +94,10 @@ pp. 1-45.
 \author{
 Arthur White
 }
-
-
+\note{
+Earlier versions of this function erroneously referred to posterior standard deviations as standard errors. This also extended to arguments supplied to and returned by the function, some of which are now returned with the corrected corrected suffix \code{blca.em.sd} (for standard deviation). For backwards compatability reasons, the earlier suffix \code{.se} has been retained as a returned argument.
+The argument \code{thin} replaces \code{accept}, which appeared in the earliest version of the package. This is to maintain consistency with other packages, such as \bold{rjags}.
+}
 \seealso{
 \code{\link{blca}}, \code{\link{as.mcmc.blca.gibbs}}, \code{\link[coda]{raftery.diag}}
 }
@@ -104,11 +109,10 @@ type1 <- c(0.8, 0.8, 0.2, 0.2)
 type2 <- c(0.2, 0.2, 0.8, 0.8)
 x<- rlca(1000, rbind(type1,type2), c(0.6,0.4))
 
-fit.gibbs<-blca.gibbs(x,2, iter=1000, burn.in=10) 
-summary(fit.gibbs)
-plot(fit.gibbs)
-
-raftery.diag(as.mcmc(fit.gibbs))
+\dontrun{fit.gibbs<-blca.gibbs(x,2, iter=1000, burn.in=10)}
+\dontrun{summary(fit.gibbs)}
+\dontrun{plot(fit.gibbs)}
+\dontrun{raftery.diag(as.mcmc(fit.gibbs))}
 
 
 \dontrun{fit.gibbs<-blca.gibbs(x,2, iter=10000, burn.in=100, thin=0.5) }

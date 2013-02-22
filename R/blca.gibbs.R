@@ -1,5 +1,5 @@
 blca.gibbs <-
-function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across"), counts.n=NULL, iter=5000, thin=1, burn.in=100, relabel=TRUE, verbose=TRUE, verbose.update=1000)
+function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across"), counts.n=NULL, iter=5000, thin=1, accept=thin, burn.in=100, relabel=TRUE, verbose=TRUE, verbose.update=1000)
 {
 	if(is.null(counts.n))
 	{
@@ -87,6 +87,7 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across")
 
 	#Store Values
 	maxiter<- iter
+	if(accept!=thin) thin<- accept
 	Kstore<-maxiter*thin
 	taustore<-matrix(NA,Kstore,G)
 	thetastore<-array(NA,c(Kstore,G,M))
@@ -145,8 +146,8 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across")
 	x$call<- match.call()
 	x$classprob<- tau[o]
 	x$itemprob<- apply(thetastore, c(2,3), mean)[o,]
-	x$classprob.se<- apply(taustore, 2, sd)[o]
-	x$itemprob.se<- apply(thetastore, c(2,3), sd)[o, ]
+	x$classprob.sd<- x$classprob.se<- apply(taustore, 2, sd)[o]
+	x$itemprob.sd<- x$itemprob.se<- apply(thetastore, c(2,3), sd)[o, ]
 	
 	dum<-array(apply(x$itemprob,1,dbinom, size=1, x=t(X)), dim=c(M,N,G))
 

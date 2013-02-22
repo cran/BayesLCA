@@ -43,6 +43,10 @@ See additional help files for  details.
 Arthur White
 }
 
+\note{
+Earlier versions of this function erroneously referred to posterior standard deviations as standard errors. This also extended to some of the variable names of the returned function, which are now returned with the corrected suffix \code{blca.em.sd} (for standard deviation). For backwards compatability reasons, the earlier suffix \code{.se} has been retained as a returned argument.
+}
+
 \seealso{
 \code{\link{blca.em}}, \code{\link{blca.boot}}, \code{\link{blca.gibbs}}, \code{\link{blca.vb}}
 }
@@ -53,17 +57,17 @@ x<- rlca(1000, rbind(type1,type2), c(0.6,0.4))
 
 set.seed(1)
 fit <- blca(x, 2) ## EM algorithm used, warning returned
-print(fit)	  ## No standard errors returned
+print(fit)	  ## No posterior standard deviations returned
 summary(fit)
 
 set.seed(1)
-fit2 <- blca(x, 2, method="em", se=TRUE) ##No warning - same fit
-print(fit2) 				 ##Standard Errors returned
+fit2 <- blca(x, 2, method="em", sd=TRUE) ##No warning - same fit
+print(fit2) 				 ##Posterior standard deviations returned
 
 set.seed(1)
 ##Variational Bayes approximation, with priors specified.
 fit3 <- blca(x, 2, method="vb", delta=c(5,5), alpha=2, beta=1) 
-print(fit3)	##Standard errors returned also.
+print(fit3)	##Posterior standard deviations returned also.
 par(mfrow=c(3,2))			  
 plot(fit3, which=3:4)
 par(mfrow=c(1,1))

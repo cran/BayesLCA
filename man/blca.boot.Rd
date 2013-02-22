@@ -68,8 +68,8 @@ A list of class "blca.boot" is returned, containing:
 \item{itemprob}{The item probabilities, conditional on class membership.}
 \item{classprob}{The class probabilities.}
 \item{Z}{Estimate of class membership for each unique datapoint.}
-\item{itemprob.se}{Standard error estimates of the item probabilities.}
-\item{classprob.se}{Standard error estimates of the class probabilities.}
+\item{itemprob.sd}{Posterior standard deviation estimates of the item probabilities.}
+\item{classprob.sd}{Posterior standard deviation estimates of the class probabilities.}
 \item{classprob.initial, itemprob.initial}{Initial parameter values for classprob and itemprob, used to run over each bootstrapped sample.}
 \item{samples}{A list containing the parameter estimates for each bootstrapped sample.}
 \item{logpost}{The log-posterior of the estimated model.}
@@ -86,6 +86,9 @@ A list of class "blca.boot" is returned, containing:
 Arthur White
 }
 
+\note{
+Earlier versions of this function erroneously referred to posterior standard deviations as standard errors. This also extended to arguments supplied to and returned by the function, some of which are now returned with the corrected corrected suffix \code{blca.em.sd} (for standard deviation). For backwards compatability reasons, the earlier suffix \code{.se} has been retained as a returned argument.
+}
 \seealso{
 \code{\link{blca.em}}, \code{\link{blca}}
 }

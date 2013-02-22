@@ -63,9 +63,9 @@ A list of class "blca.vb" is returned, containing:
 \item{call}{The initial call passed to the function.}
 \item{itemprob}{The item probabilities, conditional on class membership.}
 \item{classprob}{The class probabilities.}
-\item{itemprob.se}{The standard error estimates of the item probabilities.}
-\item{classprob.se}{The standard error estimates of the class probabilities.}
-\item{parameters}{A list containing posterior parameter values for item and class probabilities, which are assumed to follow beta and dirichlet distributions respectively.}
+\item{itemprob.sd}{Posterior standard deviation estimates of the item probabilities.}
+\item{classprob.sd}{Posterior standard deviation estimates of the class probabilities.}
+\item{parameters}{A list containing posterior parameter values for item and class probabilities, which are assumed to follow beta and Dirichlet distributions respectively.}
 \item{Z}{Estimate of class membership for each unique datapoint.}
 \item{LB}{The lower bound estimate of the log-posterior of the estimated model.}
 \item{lbstore }{The value of the lower bound estimate for each iteration.}
@@ -82,6 +82,8 @@ Arthur White
 }
 \note{
 Variational Bayes approximations, are known to often underestimate the standard errors of the parameters under investigation, so caution is advised when checking their values.
+
+Earlier versions of this function erroneously referred to posterior standard deviations as standard errors. This also extended to arguments supplied to and returned by the function, some of which are now returned with the corrected corrected suffix \code{blca.em.sd} (for standard deviation). For backwards compatability reasons, the earlier suffix \code{.se} has been retained as a returned argument.
 }
 
 \seealso{

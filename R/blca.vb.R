@@ -174,8 +174,8 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts
 	x$classprob<- x$classprob/sum(x$classprob)
 	}
 	
-	x$itemprob.se<- sqrt((zeta1*zeta2)/((zeta1+zeta2)^2*(zeta1+zeta2+1)) )
-	x$classprob.se<- sqrt( (gamma*(sum(gamma)-gamma))/(sum(gamma)^2*(sum(gamma)+1)))
+	x$itemprob.sd<- x$itemprob.se<- sqrt((zeta1*zeta2)/((zeta1+zeta2)^2*(zeta1+zeta2+1)) )
+	x$classprob.sd<- x$classprob.se<- sqrt( (gamma*(sum(gamma)-gamma))/(sum(gamma)^2*(sum(gamma)+1)))
 	
 	x$parameters$itemprob<-array(cbind(zeta1, zeta2), dim=c(G,M,2))
 	x$parameters$classprob<-gamma

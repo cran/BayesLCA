@@ -1,0 +1,1 @@
+blca2mcmc <- function(fit) as.mcmc.blca.gibbs(fit)

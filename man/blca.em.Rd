@@ -8,7 +8,7 @@ Bayesian Latent Class Analysis  via an EM Algorithm
 Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.em utilises an expectation-maximisation algorithm to find maximum \emph{a posteriori} (map) estimates of the parameters.
 }
 \usage{
-blca.em(X, G, alpha = 1, beta = 1, delta = 1, start.vals = c("single", "across"), counts.n = NULL, iter = 500, restarts = 5, verbose = TRUE, se = FALSE, conv = 1e-06, small = 1e-100)
+blca.em(X, G, alpha = 1, beta = 1, delta = 1, start.vals = c("single", "across"), counts.n = NULL, iter = 500, restarts = 5, verbose = TRUE, sd = FALSE, se=sd, conv = 1e-06, small = 1e-100)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -41,8 +41,11 @@ The maximum number of iterations that the algorithm runs over.  Will stop early 
   \item{verbose}{
 Logical valued. If \code{TRUE}, the log-posterior from each run is printed.
 }
+  \item{sd}{
+Specifies whether posterior standard deviation estimates should also be returned. If TRUE, calls to {\link{blca.em.sd}}.
+}
   \item{se}{
-Specifies whether standard error estimates should also be returned. If TRUE, calls to {\link{blca.em.se}}.
+Similarly to \code{sd}, specifies whether posterior standard deviation estimates should also be returned, however, its use is discouraged. Should always agree with \code{sd}. Retained for backwards compatability reasons. See `Note'.
 }
   \item{conv}{
 Convergence criteria, i.e., how small should the log-posterior increase become before the algorithm is deemed to have converged?  Set relative to the size of the data matrix.
@@ -65,8 +68,8 @@ A list of class "blca.em" is returned, containing:
 \item{itemprob}{The item probabilities, conditional on class membership.}
 \item{classprob}{The class probabilities.}
 \item{Z}{Estimate of class membership for each unique datapoint.}
-\item{itemprob.se}{If returned, standard error estimates of the item probabilities.}
-\item{classprob.se}{If returned, standard error estimates of the class probabilities.}
+\item{itemprob.sd}{If returned, standard error estimates of the item probabilities.}
+\item{classprob.sd}{If returned, standard error estimates of the class probabilities.}
 \item{logpost}{The log-posterior of the estimated model.}
 \item{BIC}{The Bayesian Information Criterion for the estimated model.}
 \item{AIC}{Akaike's Information Criterion for the estimated model.}
@@ -77,7 +80,7 @@ A list of class "blca.em" is returned, containing:
 \item{lpstarts}{ The log-posterior achieved after each of the multiple starts of the algorithm. }
 \item{convergence}{An integer value denoting whether the algorithm has converged correctly. 1 denotes acceptable convergence, 2 denotes that it converged at a saddle point, 3 that the algorithm ended before it had satisfactorily converged  and 4 denotes that at least one parameter value converged at a boundary value (i.e., a 1 or 0).}
 \item{prior}{A list containing the prior values specified for the model.}
-\item{se}{A logical value indicating whether standard error estimates were returned. }
+\item{sd}{A logical value indicating whether standard error estimates were returned. }
 }
 \references{
 %% ~put references to the literature/web site here ~
@@ -89,6 +92,9 @@ pp. 1--38. ISSN 00359246. doi:10.2307/2984875. URL http://dx.doi.org/10.2307/298
 Arthur White
 }
 
+\note{
+Earlier versions of this function erroneously referred to posterior standard deviations as standard errors. This also extended to arguments supplied to and returned by the function, some of which are now returned with the corrected corrected suffix \code{blca.em.sd} (for standard deviation). For backwards compatability reasons, the earlier suffix \code{.se} has been retained as a returned argument.
+}
 
 \seealso{
 \code{\link{blca}}, \code{\link{blca.boot}}, \code{\link{blca.vb}}
@@ -100,7 +106,7 @@ x <- rlca(1000, rbind(type1,type2), c(0.6,0.4))
 
 fit <- blca.em(x, 2)
 print(fit)
-fit <- blca.em(x, 2, se=TRUE) ##Returns standard errors
+fit <- blca.em(x, 2, sd=TRUE) ##Returns posterior standard deviations
 summary(fit)
 plot(fit)
 

@@ -21,7 +21,7 @@ SE1<- (diag(solve(-H1$Hessian)))
 SE2<- (diag(solve(-H2$Hessian)))
 
 if(any(SE1<0) | any(SE2<0)){
-warning("Diagonal entries of Observed Information matrix are not all positive - some posterior standard deviations will be undefined.")
+warning("Diagonal entries of Observed Information matrix  are not all positive - some posterior standard deviations will be undefined.")
 SE1[SE1<0]<- NaN
 SE2[SE2<0]<- NaN
 }

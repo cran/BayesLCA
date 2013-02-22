@@ -20,7 +20,7 @@ Additional arguments to be passed onto lower-level functions at a later stage of
 }
 }
 \details{
-Prints parameter maximum posterior (map) and standard error estimates. The latter are sometimes unavailable for \code{\link{blca.em}} objects.
+Prints parameter maximum \emph{a posteriori} (map) and standard deviation estimates. The latter are sometimes unavailable for \code{\link{blca.em}} objects.
 }
 \value{
 %%  ~Describe the value returned
@@ -43,7 +43,7 @@ data(Alzheimer)
 fit1<- blca(Alzheimer, 2, method="em")
 class(fit1)
 print(fit1)
-fit2<- blca(Alzheimer, 2, method="em", se=TRUE)
+fit2<- blca(Alzheimer, 2, method="em", sd=TRUE)
 print(fit2) ## Standard Errors also printed
 
 fit3<- blca(Alzheimer, 2, method="vb")
