@@ -66,7 +66,7 @@ function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.
 	} else {stop("restarts improperly specified. Must be an integer of length 1.")}
 
 	multistart.lp.store<- rep(0, restarts)
-
+	if(sd!=se) se<- sd
 	#Set Parameters
 	for(r in 1:restarts){
 
@@ -145,14 +145,14 @@ function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.
 		x$call<- match.call()
 		#Z.return<-matrix(0, N1, G)
 		#for(g in 1:G) Z.return[,g]<-rep(Z[,g], counts.n)
+ 		if(G>1) x$itemprob<-rstore$Thetat[o, ] else x$itemprob<-rstore$Thetat
+ 		if(!is.null(colnames(X)))if (G>1) colnames(x$itemprob)<- colnames(X)# else names(as.numeric(x$itemprob))<- colnames(X)
 		
-		x$itemprob<-rstore$Thetat[o, ]
-		if(!is.null(colnames(X)))if (G>1) colnames(x$itemprob)<- colnames(X) else names(x$itemprob)<- colnames(X)
 		x$classprob<- rstore$Taut[o]
 		x$Z<- rstore$Z[,o];
-		if(G>1) rownames(x$Z)<- names(counts.n) else names(Z)<- names(counts.n)
-		if(G>1) colnames(x$Z)<- paste("Group", 1:G)
-		
+ 		if(G>1) rownames(x$Z)<- names(counts.n) else names(Z)<- names(counts.n)
+ 		if(G>1) colnames(x$Z)<- paste("Group", 1:G)
+
 		x$logpost<- l
   
 		likl<- l - sum(xlogy(alpha-1,Thetat)+xlogy(beta-1,1-Thetat))+sum(xlogy(delta-1, Taut)) + lgamma(sum(delta)) - sum(lgamma(delta)) + sum(lgamma(alpha + beta)) - sum(lgamma(alpha) + lgamma(beta))
@@ -170,25 +170,31 @@ function(X,G,alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts.
 		x$prior$delta<- delta[o]
 
 		if(G>1){
-		  s.e.<- blca.em.sd(x,X,counts.n)
-		if(se ){
-#			if(any(x$itemprob==0)){ warning("Some item probability estimates are exactly zero. Standard errors in this case are undefined.")}
-#			if(any(x$classprob==0)){ warning("Some class probability estimates are exactly zero. Standard errors in this case are undefined.")}
+		if(sd){
+#			if(any(x$itemprob==0)){ warning("some item probability estimates are exactly zero. standard errors in this case are undefined.")}
+#			if(any(x$classprob==0)){ warning("some class probability estimates are exactly zero. standard errors in this case are undefined.")}
+			s.e.<- blca.em.sd(x,X,counts.n)
 			x$itemprob.sd<- x$itemprob.se<- s.e.$itemprob
 			x$classprob.sd<- x$classprob.se<- s.e.$classprob
-		} 
-
+			convergence<- s.e.$convergence
+		} else convergence<- 0
+		
 		if(counter>iter){ 
 		  convergence<- 3 
-		  warning("Maximum iteration reached - algorithm not deemed to have converged. Rerunning the function with 'iter' set to a higher value is recommended.")
-		} else{ convergence<- s.e.$convergence}
-		if(convergence==2) {warning("Some point estimates likely converged at saddle-point. At least some points will not be at a local maximum. \n Rerunning the function with a larger number of restarts is recommended.")}
-		if(convergence==4){ warning("Some point estimates located at boundary (i.e., are 1 or 0). Posterior standard deviations will be 0 for these values.")}
+		  warning("maximum iteration reached - algorithm not deemed to have converged. rerunning the function with 'iter' set to a higher value is recommended.")
+		} #else{ convergence<- s.e.$convergence}
+		if(convergence==2) {warning("some point estimates likely converged at saddle-point. at least some points will not be at a local maximum. \n rerunning the function with a larger number of restarts is recommended.")}
+		if(convergence==4){ warning("some point estimates located at boundary (i.e., are 1 or 0). posterior standard deviations will be 0 for these values.")}
 		x$convergence<- convergence
-		} else x$convergence<- 1
+		} else{ 
+		  x$convergence<- 1
+		  x$classprob.sd<- x$classprob.se<- 0
+		  x$itemprob.sd<- x$itemprob.se<- sqrt( ((Thetat*N1 + alpha)*( (1 - Thetat)*N1 + beta))/( (N1 + alpha + beta + small)^2 * (N1 + alpha + beta + 1 + small) ) )
+		}
 		x$small<- small
 		if((se==TRUE)&&(is.null(s.e.$classprob))) se<- FALSE
 		x$sd<- x$se<- se
 		class(x)<-c("blca.em", "blca")
+
 		x
 		}

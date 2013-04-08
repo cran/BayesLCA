@@ -1,4 +1,4 @@
-blca.em.sd<-
+blca.em.se<-
 function(fit, x, counts.n=1)#, grad.check=FALSE)
 {
 if(class(x) == "data.blca"){
@@ -6,6 +6,14 @@ counts.n<- x$counts.n
 x<- x$data
 }
 G<- length(fit$classprob)
+if(G==1){
+ret<- NULL
+ret$itemprob<- fit$itemprob.sd
+ret$classprob<- fit$classprob.sd
+ret$convergence<- 1
+return(ret)
+}
+
 if(G>1) M<- ncol(fit$itemprob) else M<- length(fit$itemprob)
 
 rm.ind<- c(which(fit$itemprob< 1e-5), which(fit$itemprob>(1 - 1e-5)))
@@ -17,11 +25,11 @@ H1<- fdHess(pars=parvec,fun=lp1.intern, dat=x,counts.n=counts.n, rm.ind=rm.ind, 
 if(length(rm.ind)>0) parvec<- c(fit$itemprob[-rm.ind], fit$classprob[-1]) else parvec<- c(fit$itemprob, fit$classprob[-1])
 H2<- fdHess(pars=parvec,fun=lp2.intern, dat=x, counts.n=counts.n,rm.ind=rm.ind, prior.list=fit$prior, val.ind=val.ind, G0=G, M0=M)
 
-SE1<- (diag(solve(-H1$Hessian)))
-SE2<- (diag(solve(-H2$Hessian)))
+SE1<- diag(solve(-H1$Hessian))
+SE2<- diag(solve(-H2$Hessian))
 
 if(any(SE1<0) | any(SE2<0)){
-warning("Diagonal entries of Observed Information matrix are not all positive - some posterior standard deviations will be undefined.")
+warning("Diagonal entries of Observed Information matrix  are not all positive - some posterior standard deviations will be undefined.")
 SE1[SE1<0]<- NaN
 SE2[SE2<0]<- NaN
 }
@@ -40,8 +48,8 @@ if(length(rm.ind)>0) se.theta[-c(rm.ind)]<- SE1[1:len.parvec.theta] else se.thet
 se.theta[rm.ind]<- 0
 
 ret<- NULL
-ret$itemprob<- matrix(se.theta, G, M)
-ret$classprob<- c( SE1[(len.parvec.theta + 1):(len.parvec.theta + G-1)], SE2[len.parvec.theta +G-1]   )
+ret$itemprob<- sqrt(matrix(se.theta, G, M))
+ret$classprob<- sqrt(c( SE1[(len.parvec.theta + 1):(len.parvec.theta + G-1)], SE2[len.parvec.theta +G-1]   ))
 ret$convergence<- convergence
 
 # if(grad.check){

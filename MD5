@@ -1,4 +1,4 @@
-fe1089c4f3fca22c3c4f7f4a132a8ebf *DESCRIPTION
+8a0b8952357941ec5fbbad4a0da5b432 *DESCRIPTION
 fbe69462a41aa04eac5f2f016e2b7da1 *NAMESPACE
 e4e113cf78fe1ef1fa1f93a11d3fefd0 *R/MAP.R
 80058180ff3decbb9035b3bd0f5665c5 *R/Zsamp.R
@@ -7,9 +7,9 @@ e09afdc87672a6ae1c06ea6ffbd810e9 *R/Zscore.R
 66848806efbe20da225837e0a78e9a3d *R/as.mcmc.blca.gibbs.R
 f7ebe9fc82a8446133f594fd408ca4e1 *R/blca.R
 cfe6d91b21ab9481b11333ffa837e21c *R/blca.boot.R
-d7d9015dd51cc944e153bc6335affb31 *R/blca.em.R
-0aacc54bb0a60ed4678091ed96fc1b4a *R/blca.em.sd.R
-1f24d681a809c6eb9ab8dda2b753fbbc *R/blca.em.se.R
+67f6399713e806065fe6a52500d51ed9 *R/blca.em.R
+85b3274c7ad5a21154916c19b300b1fb *R/blca.em.sd.R
+064302adb391cb3ebe9d75d03fa639df *R/blca.em.se.R
 426009c4ce43e6156f3accf42dd45ee3 *R/blca.gibbs.R
 b2f4836f37b171136b40f6698a2786d0 *R/blca.vb.R
 49b1f0f9ca4978d6ba452df0798f33fb *R/blca2mcmc.R
@@ -22,10 +22,10 @@ d018b68ef60349cf69ef4d3ab74c9af3 *R/plot.blca.boot.R
 f88e006b256b557f504293f0a25e7d29 *R/plot.blca.em.R
 675994463e35e9d30fecb6c307e8692e *R/plot.blca.gibbs.R
 9978ca95dbbcbeb1caecefc268e1f598 *R/plot.blca.vb.R
-80bc74f1fb1b9979977cac03ba525a01 *R/print.blca.R
+d1caaeaa3ef78165ade6aea48107682a *R/print.blca.R
 deb7aace8a0610e2041e0f85216029fe *R/print.summary.blca.R
 8ebeeb1c8f6e375754f1d94cebca89e2 *R/rlca.R
-9ddd6a8d61dbb108fbc62a8bda78df75 *R/summary.blca.R
+74561164621c23bb2c1298c4ecefd265 *R/summary.blca.R
 d141bc7233959f5e1840313f607c16a9 *R/summary.blca.boot.R
 b46d397dbb3d01e232a00f7491580f48 *R/summary.blca.em.R
 1b9db8abe06ba4f71bb938641651a207 *R/summary.blca.gibbs.R
@@ -41,8 +41,8 @@ a6fb45048a7a628dace3bb5f172814ef *man/Zscore.Rd
 877997552cf872a6ac9f1485f561473c *man/as.mcmc.blca.gibbs.Rd
 d3b492900c8af148df4e927bf8543a4b *man/blca.Rd
 46536694fc7f72b2cfc5d670276c2adc *man/blca.boot.Rd
-2a1d1877d36835bce139fc71d3a0eaa4 *man/blca.em.Rd
-48df0e040e9870269df8c0c62c62aff7 *man/blca.em.sd.Rd
+5d3e1adb611848c7c90a156059a97149 *man/blca.em.Rd
+2e59fcff7a02e4af1aac055132d78703 *man/blca.em.sd.Rd
 6887b200f3874565ff8dc4ba17aa218c *man/blca.gibbs.Rd
 23c98ed1960a77808f0f3fab4ea3fe33 *man/blca.vb.Rd
 9b9dba0c75c4b3ecfbd4a48bf13b6128 *man/data.blca.Rd

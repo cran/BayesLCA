@@ -55,7 +55,9 @@ To ensure numerical stability a small constant is added to certain parameter est
 }
 }
 \details{
-Regardless of the form of the data supplied to \code{\link{blca.em}}, it is internally converted to be of the form \code{\link{data.blca}}.  In particular, this should be noted when supplying starting values: the object must be of either the same length or have the same number of rows as the number of \bold{unique} observations in the dataset, as opposed to the total number. 
+Regardless of the form of the data supplied to \code{\link{blca.em}}, it is internally converted to be of the form \code{\link{data.blca}}.  In particular, this should be noted when supplying starting values: the object must be of either the same length or have the same number of rows as the number of \bold{unique} observations in the dataset, as opposed to the total number.
+
+Posterior standard deviations and convergence checks are calculated using \code{\link{blca.em.sd}}. 
 }
 \value{
 %%  ~Describe the value returned
@@ -78,7 +80,7 @@ A list of class "blca.em" is returned, containing:
 \item{eps}{The value for which the algorithm was deemed to have converged at.}
 \item{counts}{ The number of times each unique datapoint point occured.}
 \item{lpstarts}{ The log-posterior achieved after each of the multiple starts of the algorithm. }
-\item{convergence}{An integer value denoting whether the algorithm has converged correctly. 1 denotes acceptable convergence, 2 denotes that it converged at a saddle point, 3 that the algorithm ended before it had satisfactorily converged  and 4 denotes that at least one parameter value converged at a boundary value (i.e., a 1 or 0).}
+\item{convergence}{If posterior standard deviations are calculated, then the Hessian of the model is also checked to determine whether the algorithm has converged to at least a local maximum. The convergence status is calculated by an integer value: 1 denotes acceptable convergence, 2 denotes that it converged at a saddle point, 3 that the algorithm ended before it had satisfactorily converged  and 4 denotes that at least one parameter value converged at a boundary value (i.e., a 1 or 0). 0 denotes that the algorithm converged satisfactorily but that the Hessian has not been checked.}
 \item{prior}{A list containing the prior values specified for the model.}
 \item{sd}{A logical value indicating whether standard error estimates were returned. }
 }
@@ -97,7 +99,7 @@ Earlier versions of this function erroneously referred to posterior standard dev
 }
 
 \seealso{
-\code{\link{blca}}, \code{\link{blca.boot}}, \code{\link{blca.vb}}
+\code{\link{blca}},\code{\link{blca.em.sd}}, \code{\link{blca.boot}}, \code{\link{blca.vb}}
 }
 \examples{
 type1 <- c(0.8, 0.8, 0.2, 0.2)

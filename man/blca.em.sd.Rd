@@ -6,7 +6,7 @@
 Posterior Standard Deviation Estimates for Bayesian Latent Class Analysis  via an EM Algorithm
 }
 \description{
-Returns posterior standard deviation estimates for point estimates returned by \code{\link{blca.em}}. These are obtained via asymptotic estmation of the Observed Information matrix.
+Returns posterior standard deviation estimates for point estimates returned by \code{\link{blca.em}}. These are obtained via asymptotic estmation of the Observed Information matrix. The Hessian of the log-posterior is also checked to determine whether point estimates occur at at least a local maximum.
 }
 \usage{
 blca.em.sd(fit, x, counts.n = 1)
@@ -35,7 +35,7 @@ This function is primarily intended for use in conjunction with \code{\link{blca
 A list containing:
 \item{itemprob }{Posterior standard deviation estimates of the item probabilities.}
 \item{classprob }{Posterior standard deviation estimates of the class probabilities.}
-\item{convergence}{An integer value denoting whether the algorithm has converged correctly. 1 denotes acceptable convergence, 2 denotes that it converged at a saddle point, 3 that the algorithm ended before it converged and 4 denotes that at least one parameter value converged at a boundary value.}
+\item{convergence}{An integer value denoting whether point estimates occur at at least a local maximum. 1 denotes acceptable convergence, 2 denotes that it converged at a saddle point, 3 that the algorithm ended before it converged and 4 denotes that at least one parameter value converged at a boundary value.}
 }
 \author{
 Arthur White

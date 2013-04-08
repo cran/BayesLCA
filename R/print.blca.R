@@ -9,7 +9,9 @@ btheta.se<- x$itemprob.se
 
 names(btau)<- paste(rep("Group", length(btau)), 1:length(btau))
 
-if(is.null(colnames(btheta))) colnames(btheta)<- paste(rep("Col", length(btau)), 1:ncol(btheta))
+if(is.matrix(btheta)) {
+  if(is.null(colnames(btheta))) colnames(btheta)<- paste(rep("Col", length(btau)), 1:ncol(btheta))
+} else   if(is.null(names(btheta))) names(btheta)<- paste(rep("Col", length(btau)), 1:ncol(btheta))
 
 rownames(btheta)<- paste(rep("Group", length(btau)),1:nrow(btheta))
 
