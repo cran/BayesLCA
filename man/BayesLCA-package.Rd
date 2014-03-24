@@ -6,14 +6,14 @@
 Bayesian Latent Class Analysis
 }
 \description{
-Bayesian latent class analysis using multiple inference techniques.
+Bayesian latent class analysis using several different methods.
 }
 \details{
 \tabular{ll}{
 Package: \tab BayesLCA\cr
 Type: \tab Package\cr
-Version: \tab 1.1\cr
-Date: \tab 2013-02-01\cr
+Version: \tab 1.4\cr
+Date: \tab 2014-03-24\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }

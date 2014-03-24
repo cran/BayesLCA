@@ -8,7 +8,11 @@ Bayesian Latent Class Analysis via Gibbs Sampling
 Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.gibbs performs Gibbs sampling to sample from the parameters' true distribution.
 }
 \usage{
-blca.gibbs(X, G, alpha = 1, beta = 1, delta = 1, start.vals = c("prior", "single", "across"), counts.n = NULL, iter = 5000, thin = 1, accept=thin, burn.in = 100, relabel = TRUE, verbose = TRUE, verbose.update = 1000)
+blca.gibbs(X, G, alpha = 1, beta = 1, delta = 1, 
+	   start.vals = c("prior", "single", "across"), 
+	   counts.n = NULL, iter = 5000, thin = 1, 
+	   accept=thin, burn.in = 100, relabel = TRUE, 
+           verbose = TRUE, verbose.update = 1000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

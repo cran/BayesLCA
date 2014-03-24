@@ -9,12 +9,12 @@ Converts \code{blca.gibbs} Objects to type \code{mcmc}
 Converts blca objects to mcmc objects.  This is only to be used with the Gibbs sampling method.
 }
 \usage{
-as.mcmc.blca.gibbs(fit)
-blca2mcmc(fit)
+\method{as.mcmc}{blca.gibbs}(x)
+blca2mcmc(x)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{fit}{
+  \item{x}{
 An object of class blca.gibbs. An error is returned if this is not the case.
 }
 }
@@ -29,7 +29,7 @@ Arthur White
 }
 
 \note{
-The function \code{as.mcmc.blca.gibbs} replaces the function \code{mcmc2blca}, which appeared in the original version of the package, and which is retained as internal function for backwards compatibility reasons.
+This function replaces the function \code{mcmc2blca}, which appeared in the original version of the package, and which is retained as internal function for backwards compatibility reasons.
 
 }
 
@@ -49,5 +49,5 @@ data(Alzheimer)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ blca }
+\keyword{ as.mcmc }% __ONLY ONE__ keyword per line

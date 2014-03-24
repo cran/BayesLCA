@@ -1,6 +1,6 @@
 MAP <-
 function(mat, tie=c("random", "standard")){
-	tie<- tie[1]
+	tie<- match.arg(tie)
 	maxmat<- apply(mat, 1, max)
 	M<-1:ncol(mat)
 	map1<- rep(0, length(maxmat))

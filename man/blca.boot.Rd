@@ -8,7 +8,10 @@ Bayesian Latent Class Analysis via an EM Algorithm and Using Empirical Bootstrap
 Latent class analysis (LCA) attempts to find G hidden classes in binary data X.  blca.boot repeatedly samples from X with replacement then utilises an EM algorithm to find maximum posterior (MAP) and standard error estimates of the parameters.
 }
 \usage{
-blca.boot(X, G, alpha = 1, beta = 1, delta = rep(1, G), start.vals = c("single", "across"), counts.n = NULL, fit = NULL, iter = 50, B = 100, relabel = FALSE, verbose = TRUE, verbose.update = 10, small = 1e-100)
+blca.boot(X, G, alpha = 1, beta = 1, delta = rep(1, G), 
+	  start.vals = c("single", "across"), counts.n = NULL, 
+	  fit = NULL, iter = 50, B = 100, relabel = FALSE, 
+          verbose = TRUE, verbose.update = 10, small = 1e-100)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

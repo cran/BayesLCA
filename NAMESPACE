@@ -1,8 +1,11 @@
-import(e1071, MCMCpack)
+import(e1071)
+import(coda)
+importFrom(MCMCpack, rdirichlet, ddirichlet)
 importFrom(fields, image.plot)
 importFrom(nlme, fdHess)
 
-exportPattern("Alzheimer", "as.mcmc.blca.gibbs", "blca", "blca.boot", "blca.em", "blca.em.sd", "blca.gibbs", "blca.vb", "data.blca", "MAP", "rlca", "unMAP", "Zscore")
+exportPattern("Alzheimer", "blca", "blca.boot", "blca.em", "blca.em.sd", "blca.gibbs", "blca.vb", "data.blca", "MAP", "rlca", "unMAP", "Zscore")
+S3method(as.mcmc, blca.gibbs)
 S3method(print, blca)
 S3method(plot, blca)
 S3method(plot, blca.em)

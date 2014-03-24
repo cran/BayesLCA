@@ -8,7 +8,10 @@ Bayesian Latent Class Analysis  via a variational Bayes algorithm
 Latent class analysis (LCA) attempts to find G hidden classes in binary data X. blca.vb uses a variational EM algorithm to find the distribution which best approximates the parameters' true distribution.
 }
 \usage{
-blca.vb(X, G, alpha = 1, beta = 1, delta = 1, start.vals = c("single", "across"), counts.n = NULL, iter = 500, restarts = 1, verbose = TRUE, conv = 1e-06, small = 1e-100)
+blca.vb(X, G, alpha = 1, beta = 1, delta = 1, 
+	start.vals = c("single", "across"), counts.n = NULL, 
+        iter = 500, restarts = 1, verbose = TRUE, conv = 1e-06, 
+	small = 1e-100)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

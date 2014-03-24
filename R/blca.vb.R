@@ -3,7 +3,7 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("single","across"), counts
 {	
 	if(is.null(counts.n))
 	{
-		if(class(X)=="data.blca"){
+		if(inherits(X,"data.blca")){
 			counts.n<- X$counts.n
 			X<- X$data
 		}else{

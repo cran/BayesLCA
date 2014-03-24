@@ -1,7 +1,7 @@
 blca.em.se<-
 function(fit, x, counts.n=1)#, grad.check=FALSE)
 {
-if(class(x) == "data.blca"){
+if(inherits(x,"data.blca")){
 counts.n<- x$counts.n
 x<- x$data
 }
