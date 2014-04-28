@@ -1,5 +1,5 @@
 plot.blca <-
-function(x, which=1L, main="", ...){
+function(x, which=1L, main="", col1=heat.colors(12), ...){
 
 	logistore<- devAskNewPage()
 	devAskNewPage(TRUE)
@@ -13,7 +13,7 @@ function(x, which=1L, main="", ...){
 	
 	sel<- Tau<1e-6 
 	if(any(sel)){
-		warning("The following groups have negligible membership probability, and will be omitted from the plotting device: ", "\n", 
+		warning("The following groups have neg`ligible membership probability, and will be omitted from the plotting device: ", "\n", 
 		paste(rep("Group", sum(sel)), which(sel), collapse=","), ".")
 		Tau<- Tau[!sel]
 		Theta<- Theta[!sel,]
@@ -24,7 +24,7 @@ function(x, which=1L, main="", ...){
 	xcut<-c(0,cumsum(Tau))
 	ycut<-0:M
 	
-	image.plot(ycut, xcut, t(Theta), axes=FALSE, zlim=c(0,1), ylab="Groups", xlab="Variables", main=main, col=heat.colors(12))
+	image.plot(ycut, xcut, t(Theta), axes=FALSE, zlim=c(0,1), ylab="Groups", xlab="Variables", main=main, col=col1)
 	#image(ycut, xcut, t(Theta), axes=FALSE, ylab="Groups", xlab="Variables", main=main, ...)
 	abline(h=xcut)
 	abline(v=ycut)
@@ -137,7 +137,7 @@ function(x, which=1L, main="", ...){
 		
 		colnames(plot.mat)<- c("Probability", "Density")
 		
-		plot(plot.mat, main=main, type='n')
+		plot(plot.mat, main=main, type='n', ...)
 		mtext(caption[m], 3, 0.25)
 		for(g in 1:G) 	lines(xseq, x$classprob[g]*dbeta(xseq, x$parameters$itemprob[g, m, 1], x$parameters$itemprob[g, m, 2] ), col=g+1 )
 		
@@ -165,7 +165,7 @@ function(x, which=1L, main="", ...){
 		
 		colnames(plot.mat)<- c("Probability", "Density")
 		
-		plot(plot.mat, ylim=range(ymat), type='n', main=main)
+		plot(plot.mat, ylim=range(ymat), type='n', main=main, ...)
 		mtext("Conditional Membership", 3, 0.25)
 		for(g in 1:G) lines(xseq,  ymat[,g], lty=1, lwd=0.5, col=g+1)
 		
@@ -202,7 +202,7 @@ function(x, which=1L, main="", ...){
 		
 		lbplot<- cbind(1:length(x$lbstore), x$lbstore)
 		colnames(lbplot)<- c("Iteration", "Lower Bound")
-		plot(lbplot, type='b')
+		plot(lbplot, type='b', ...)
 		mtext("Algorithm Convergence", 3, 0.25)
 		} ##Show 9, VB diagnostic
 

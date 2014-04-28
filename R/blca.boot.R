@@ -1,13 +1,15 @@
 blca.boot <-
-function(X,G, alpha=1,beta=1, delta=rep(1,G), start.vals= c("single","across"), counts.n=NULL, fit=NULL, iter=50,  B=100, relabel=FALSE, verbose=TRUE, verbose.update=10, small=1e-100)
+function(X,G=NULL, alpha=1,beta=1, delta=rep(1,G), start.vals= c("single","across"), counts.n=NULL, fit=NULL, iter=50,  B=100, relabel=FALSE, verbose=TRUE, verbose.update=10, small=1e-100)
 {			
 	if(is.null(fit)){
 		if(verbose==TRUE) cat("Object 'fit' not supplied. Obtaining starting values via blca.em...\n")
+		if(is.null(G)) warning("Number of groups must be specified.")
 		x<-blca.em(X, G, iter=500, conv=1e-10, alpha=alpha, beta=beta, delta=delta, start.vals= start.vals)
 		conv<-x$eps
 		if(verbose==TRUE) cat("Starting values obtained...\n")
 	} else {
 		x<- fit
+		G<- length(fit$classprob)
 		conv<- x$eps
 		alpha<- x$prior$alpha
 		beta<- x$prior$alpha
