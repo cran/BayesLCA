@@ -25,6 +25,11 @@ Maintainer: Arthur White <arthur.white@ucdconnect.ie>
 
 \keyword{ package }
 
+\references{
+Arthur White, Thomas Brendan Murphy (2014). BayesLCA: An R Package for Bayesian Latent Class Analysis." Journal of Statistical Software, 61(13), 1-28. URL: http://www.jstatsoft.org/v61/i13/.
+
+}
+
 \examples{
 type1 <- c(0.8, 0.8, 0.2, 0.2)
 type2 <- c(0.2, 0.2, 0.8, 0.8)

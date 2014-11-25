@@ -43,6 +43,11 @@ See additional help files for  details.
 Arthur White
 }
 
+\references{
+Arthur White, Thomas Brendan Murphy (2014). BayesLCA: An R Package for Bayesian Latent Class Analysis." Journal of Statistical Software, 61(13), 1-28. URL: http://www.jstatsoft.org/v61/i13/.
+
+}
+
 \note{
 Earlier versions of this function erroneously referred to posterior standard deviations as standard errors. This also extended to some of the variable names of the returned function, which are now returned with the corrected suffix \code{blca.em.sd} (for standard deviation). For backwards compatability reasons, the earlier suffix \code{.se} has been retained as a returned argument.
 }

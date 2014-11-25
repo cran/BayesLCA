@@ -46,6 +46,11 @@ Currently, the colors used in a plot can only be specified directly for \code{wh
 Arthur White
 }
 
+\references{
+Arthur White, Thomas Brendan Murphy (2014). BayesLCA: An R Package for Bayesian Latent Class Analysis." Journal of Statistical Software, 61(13), 1-28. URL: http://www.jstatsoft.org/v61/i13/.
+
+}
+
 \seealso{
 \code{\link[fields]{image.plot}}, \code{\link[graphics]{mosaicplot}}.
 }
