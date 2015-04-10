@@ -38,12 +38,13 @@ function(x, which=1L, main="", col1=heat.colors(12), ...){
 	}#Show1 Parameter Mosaicplot
 	if(show[2]){ 
 		N<- nrow(x$Z)
+		G<- ncol(x$Z)
 		
 		ind1<- N%/%20 + 1
 		o1<- order(x$count, decreasing=TRUE)
 		o2<- order(x$classprob, decreasing=TRUE)
 		
-		Z<- (x$count*x$Z)[o1, o2]
+		Z<- matrix( (x$count*x$Z)[o1, o2], N, G )
 		
 		for(ind2 in 1:ind1){
 		

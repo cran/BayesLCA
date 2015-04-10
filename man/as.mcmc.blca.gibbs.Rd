@@ -8,15 +8,17 @@ Converts \code{blca.gibbs} Objects to type \code{mcmc}
 \description{
 Converts blca objects to mcmc objects.  This is only to be used with the Gibbs sampling method.
 }
-\usage{
-\method{as.mcmc}{blca.gibbs}(x)
-blca2mcmc(x)
-}
+ \usage{
+%-\method{as.mcmc}{blca.gibbs}(x)
+\method{as.mcmc}{blca.gibbs}(x, \dots)
+ blca2mcmc(x)
+ }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
 An object of class blca.gibbs. An error is returned if this is not the case.
 }
+\item{\dots}{Additional arguments to be passed to the \code{\link[coda]{mcmc}} function. }
 }
 \details{
 Whenever a Gibbs sampler is employed, it is always a good idea to ensure that parameter samples are being obtained correctly - that burn-in has been achieved, and that appropriate mixing is taking place, for example.  \code{as.mcmc.blca.gibbs} converts an object of class \code{\link{blca}} to that of \code{\link[coda]{mcmc}} to avail of the diagnostic  checks available in other R packages, particularly those in the \bold{coda} package.
@@ -29,7 +31,7 @@ Arthur White
 }
 
 \note{
-This function replaces the function \code{mcmc2blca}, which appeared in the original version of the package, and which is retained as internal function for backwards compatibility reasons.
+This function replaces the function \code{mcmc2blca}, which appeared in the original version of the package, and which is retained as an internal function for backwards compatibility reasons.
 
 }
 

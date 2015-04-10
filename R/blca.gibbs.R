@@ -119,7 +119,8 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across")
 		if((iter>burn.in)&&(iter%%round(1/thin)==0))
 		{
 			if(verbose==TRUE & (iter-burn.in)%%verbose.update == 0) cat(iter - burn.in, "of", maxiter, "samples completed...\n")
-			match1<- matchClasses(t(Z)%*%Zmatch, method="exact", verbose=FALSE)
+			if(G > 1) { 
+				match1<- matchClasses(t(Z)%*%Zmatch, method="exact", verbose=FALSE) } else match1 <- 1:G
 			if(any(match1!=1:G)) label.swap<- TRUE
 			labelstore[counter,]<- match1
 			if(relabel){
@@ -149,23 +150,34 @@ function(X,G, alpha=1, beta=1, delta=1, start.vals= c("prior","single","across")
 	x$classprob.sd<- x$classprob.se<- apply(taustore, 2, sd)[o]
 	x$itemprob.sd<- x$itemprob.se<- apply(thetastore, c(2,3), sd)[o, ]
 	
-	dum<-array(apply(x$itemprob,1,dbinom, size=1, x=t(X)), dim=c(M,N,G))
+	if(G == 1){
+		 x$itemprob <- matrix(x$itemprob, G, M)
+		 x$itemprob.sd <- x$itemprob.se <- matrix(x$itemprob.sd, G, M)
+		 }
+	
+	if(G > 1)	dum<-array(apply(x$itemprob,1,dbinom, size=1, x=t(X)), dim=c(M,N,G)) else dum<-array( dbinom(t(X), 1, x$itemprob), dim=c(M,N,G))
 
 	Z1<-t(x$classprob*t(apply(dum, c(2,3), prod)))
 
 	x$logpost<- sum(log(rowSums(Z1))*counts.n) + sum(xlogy(alpha-1, x$itemprob) + xlogy(beta-1, 1- x$itemprob) + sum(xlogy(delta-1, x$classprob)))
 	
-	x$Z<- (Zstore/counts.n)[, o]
+	if(G > 1) x$Z<- (Zstore/counts.n)[, o] else x$Z<- matrix( (Zstore/counts.n)[, o], nrow = N, ncol = G)
+	
 	rownames(x$Z)<- names(counts.n)
 	colnames(x$Z)<- paste("Group", 1:G)
 	
 	x$samples<-NULL
+	if(G > 1){
 	x$samples$classprob<-taustore[, o]
 	x$samples$itemprob<-thetastore[, o, ]
+	} else {
+	x$samples$classprob<- taustore
+	x$samples$itemprob<- thetastore
+	}
 	x$samples$logpost<- logpost.store
 	
 	if(!is.null(colnames(X))){
-		colnames(x$itemprob)<- colnames(x$itemprob.se)<- colnames(X)
+		colnames(x$itemprob)<- colnames(x$itemprob.sd)<- colnames(x$itemprob.se)<- colnames(X)
 		dimnames(x$samples$itemprob)<- list(NULL, NULL, colnames(X)) 
 	}
 	

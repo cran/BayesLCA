@@ -13,7 +13,7 @@ Bayesian latent class analysis using several different methods.
 Package: \tab BayesLCA\cr
 Type: \tab Package\cr
 Version: \tab 1.4\cr
-Date: \tab 2014-03-24\cr
+Date: \tab 2015-04-09\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
