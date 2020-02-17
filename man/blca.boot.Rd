@@ -102,10 +102,10 @@ x <- rlca(1000, rbind(type1,type2), c(0.6,0.4))
 fit.boot <- blca.boot(x, 2)
 summary(fit.boot)
 
-fit <- blca.em(x, 2, se=FALSE)
-fit.boot <- blca.boot(x, 2, fit=fit)
-fit.boot
-plot(fit.boot, which=1:4)
+\dontrun{fit <- blca.em(x, 2, se=FALSE)}
+\dontrun{fit.boot <- blca.boot(x, 2, fit=fit)}
+\dontrun{fit.boot}
+\dontrun{plot(fit.boot, which=1:4)}
 }
 \keyword{ bootstrap }
 \keyword{ blca }% __ONLY ONE__ keyword per line

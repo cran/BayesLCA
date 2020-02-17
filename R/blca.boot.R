@@ -21,7 +21,7 @@ function(X,G=NULL, alpha=1,beta=1, delta=rep(1,G), start.vals= c("single","acros
 	
 	if(is.null(counts.n))
 	{
-		if(class(X)=="data.blca"){
+		if(inherits(X,"data.blca")){
 			counts.n<- X$counts.n
 			X<- X$data
 		}else{

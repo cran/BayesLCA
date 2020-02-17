@@ -25,7 +25,7 @@ data(Alzheimer)
 fit2 <- blca.em(Alzheimer, 2)
 summary(fit2)
 
-fit3<- blca.em(Alzheimer, 3, restarts=25)
+fit3<- blca.em(Alzheimer, 3, restarts=20)
 summary(fit3)
 
 }
