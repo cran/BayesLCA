@@ -45,7 +45,7 @@ data(Alzheimer)
 \dontrun{ fit.gibbs <- blca.gibbs(Alzheimer, 2) }
 \dontrun{ raftery.diag(as.mcmc(fit.gibbs)) }
 
-\dontrun{ fit.gibbs <- blca.gibbs(Alzheimer, 2, K=100000, accept=0.1, burn.in=100) }
+\dontrun{ fit.gibbs <- blca.gibbs(Alzheimer, 2, iter=50000, accept=0.1, burn.in=100) }
 \dontrun{ plot(as.mcmc(fit.gibbs)) }
 
 }

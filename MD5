@@ -1,4 +1,4 @@
-5375d632eda59760294a2f05f2768b9c *DESCRIPTION
+4c84ee54de81a0b7a4ef4a9bcd17da59 *DESCRIPTION
 c911e39a6cb93feba81656d46329f4c2 *NAMESPACE
 dfe58ead103345268698f5c97a279063 *R/MAP.R
 80058180ff3decbb9035b3bd0f5665c5 *R/Zsamp.R
@@ -39,7 +39,7 @@ a2be8aebe66d30c275235df0f9334244 *inst/CITATION
 d46175a392e22423e618ad0c8e06ff3f *man/BayesLCA-package.Rd
 24e6e1ace108665bac843faf2b2c0b6d *man/MAP.Rd
 a6fb45048a7a628dace3bb5f172814ef *man/Zscore.Rd
-02fc69db489be514c4a54c86144a2572 *man/as.mcmc.blca.gibbs.Rd
+30bab9b6c10b0642d9b4ac4955589140 *man/as.mcmc.blca.gibbs.Rd
 59023d3d2f8a06d19fadf2537900cd26 *man/blca.Rd
 807ec9d9000804830f0fdf2ca4cf7002 *man/blca.boot.Rd
 f08b817abc3d6572d6ad603bc06d1a0e *man/blca.em.Rd
